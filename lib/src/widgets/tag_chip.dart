@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../models/work.dart';
 import '../screens/search_result_screen.dart';
 import '../../l10n/app_localizations.dart';
+import '../utils/tag_localizer.dart';
 
 class TagChip extends StatelessWidget {
   final Tag tag;
@@ -29,6 +30,8 @@ class TagChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final locale = Localizations.localeOf(context);
+    final localizedName = TagLocalizer.localize(tag.id, tag.name, locale);
     // 如果提供了自定义样式参数，使用自定义样式
     if (fontSize != null || padding != null || borderRadius != null) {
       return GestureDetector(
@@ -40,7 +43,7 @@ class TagChip extends StatelessWidget {
                 context,
                 MaterialPageRoute(
                   builder: (context) => SearchResultScreen(
-                    keyword: tag.name,
+                    keyword: localizedName,
                     searchTypeLabel: S.of(context).searchTypeTag,
                     searchParams: {'tagId': tag.id, 'tagName': tag.name},
                   ),
@@ -56,7 +59,7 @@ class TagChip extends StatelessWidget {
             borderRadius: BorderRadius.circular(borderRadius ?? 12),
           ),
           child: Text(
-            tag.name,
+            localizedName,
             style: TextStyle(
               fontSize: fontSize ?? 11,
               color: Theme.of(context).colorScheme.onPrimaryContainer,
@@ -71,7 +74,7 @@ class TagChip extends StatelessWidget {
     if (onDeleted != null) {
       // 如果有删除功能，使用 InputChip
       return InputChip(
-        label: Text(tag.name),
+        label: Text(localizedName),
         onPressed: onTap ??
             () {
               print('[TagChip] Clicked tag: ${tag.name}, id: ${tag.id}');
@@ -80,7 +83,7 @@ class TagChip extends StatelessWidget {
                 context,
                 MaterialPageRoute(
                   builder: (context) => SearchResultScreen(
-                    keyword: tag.name,
+                    keyword: localizedName,
                     searchTypeLabel: S.of(context).searchTypeTag,
                     searchParams: {'tagId': tag.id, 'tagName': tag.name},
                   ),
@@ -102,7 +105,7 @@ class TagChip extends StatelessWidget {
     } else {
       // 如果没有删除功能，使用 ActionChip
       return ActionChip(
-        label: Text(tag.name),
+        label: Text(localizedName),
         onPressed: onTap ??
             () {
               print('[TagChip] Clicked tag: ${tag.name}, id: ${tag.id}');
@@ -111,7 +114,7 @@ class TagChip extends StatelessWidget {
                 context,
                 MaterialPageRoute(
                   builder: (context) => SearchResultScreen(
-                    keyword: tag.name,
+                    keyword: localizedName,
                     searchTypeLabel: S.of(context).searchTypeTag,
                     searchParams: {'tagId': tag.id, 'tagName': tag.name},
                   ),

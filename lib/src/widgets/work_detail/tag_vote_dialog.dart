@@ -6,6 +6,7 @@ import '../../providers/auth_provider.dart';
 import '../../providers/settings_provider.dart';
 import '../../../l10n/app_localizations.dart';
 import '../responsive_dialog.dart';
+import '../../utils/tag_localizer.dart';
 
 /// 标签投票对话框组件
 class TagVoteDialog extends ConsumerStatefulWidget {
@@ -127,7 +128,7 @@ class _TagVoteDialogState extends ConsumerState<TagVoteDialog> {
   Widget build(BuildContext context) {
     return ResponsiveAlertDialog(
       title: Text(
-        _currentTag.name,
+        TagLocalizer.localize(_currentTag.id, _currentTag.name, Localizations.localeOf(context)),
         style: const TextStyle(fontSize: 16),
       ),
       content: Column(

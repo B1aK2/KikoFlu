@@ -5,6 +5,7 @@ import '../../models/work.dart';
 import '../../providers/auth_provider.dart';
 import '../../../l10n/app_localizations.dart';
 import '../responsive_dialog.dart';
+import '../../utils/tag_localizer.dart';
 
 /// 添加标签对话框组件
 class AddTagDialog extends ConsumerStatefulWidget {
@@ -75,13 +76,19 @@ class _AddTagDialogState extends ConsumerState<AddTagDialog> {
 
   void _filterTags() {
     final query = _searchController.text.toLowerCase().trim();
+    final locale = Localizations.localeOf(context);
     setState(() {
       if (query.isEmpty) {
         _filteredTags = _allTags;
       } else {
         _filteredTags = _allTags
-            .where(
-                (tag) => tag['name'].toString().toLowerCase().contains(query))
+            .where((tag) {
+              final name = tag['name'].toString().toLowerCase();
+              final localizedName = TagLocalizer.localize(
+                tag['id'] as int, tag['name'] as String, locale,
+              ).toLowerCase();
+              return name.contains(query) || localizedName.contains(query);
+            })
             .toList();
       }
     });
@@ -195,7 +202,7 @@ class _AddTagDialogState extends ConsumerState<AddTagDialog> {
                   final tag = _allTags.firstWhere((t) => t['id'] == tagId);
                   return Chip(
                     label: Text(
-                      tag['name'],
+                      TagLocalizer.localize(tagId, tag['name'], Localizations.localeOf(context)),
                       style: const TextStyle(fontSize: 11),
                     ),
                     deleteIcon: const Icon(Icons.close, size: 16),
@@ -239,6 +246,7 @@ class _AddTagDialogState extends ConsumerState<AddTagDialog> {
                           final tag = _filteredTags[index];
                           final tagId = tag['id'] as int;
                           final tagName = tag['name'] as String;
+                          final localizedTagName = TagLocalizer.localize(tagId, tagName, Localizations.localeOf(context));
                           final count = tag['count'] ?? 0;
                           final isExisting = existingTagIds.contains(tagId);
                           final isSelected = _selectedTagIds.contains(tagId);
@@ -247,7 +255,7 @@ class _AddTagDialogState extends ConsumerState<AddTagDialog> {
                             dense: true,
                             enabled: !isExisting,
                             title: Text(
-                              tagName,
+                              localizedTagName,
                               style: TextStyle(
                                 fontSize: 13,
                                 color: isExisting ? Colors.grey : null,

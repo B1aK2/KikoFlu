@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../l10n/app_localizations.dart';
 import '../providers/settings_provider.dart';
 import '../utils/snackbar_util.dart';
+import '../utils/tag_localizer.dart';
 import '../providers/auth_provider.dart';
 
 class BlockedItemsScreen extends ConsumerWidget {
@@ -84,8 +85,11 @@ class _BlockedList extends ConsumerWidget {
               itemCount: items.length,
               itemBuilder: (context, index) {
                 final item = items[index];
+                final displayItem = type == _BlockedType.tag
+                    ? TagLocalizer.localizeByName(item, Localizations.localeOf(context))
+                    : item;
                 return ListTile(
-                  title: Text(item),
+                  title: Text(displayItem),
                   trailing: IconButton(
                     icon: const Icon(Icons.delete),
                     onPressed: () {
@@ -214,16 +218,27 @@ class _AddItemDialogState extends ConsumerState<_AddItemDialog> {
                   } else {
                     final query = textEditingValue.text.trim().toLowerCase();
                     filteredList = _suggestions.where((option) {
-                      return option['name']
-                          .toString()
-                          .toLowerCase()
-                          .contains(query);
+                      final name = option['name'].toString().toLowerCase();
+                      if (name.contains(query)) return true;
+                      if (widget.type == _BlockedType.tag && option['id'] != null) {
+                        final localizedName = TagLocalizer.localize(
+                          option['id'] as int, option['name'] as String, Localizations.localeOf(context),
+                        ).toLowerCase();
+                        if (localizedName.contains(query)) return true;
+                      }
+                      return false;
                     }).toList();
                   }
                   return filteredList;
                 },
-                displayStringForOption: (Map<String, dynamic> option) =>
-                    option['name'],
+                displayStringForOption: (Map<String, dynamic> option) {
+                    if (widget.type == _BlockedType.tag && option['id'] != null) {
+                      return TagLocalizer.localize(
+                        option['id'] as int, option['name'], Localizations.localeOf(context),
+                      );
+                    }
+                    return option['name'];
+                  },
                 fieldViewBuilder: (context, textEditingController, focusNode,
                     onFieldSubmitted) {
                   // 同步控制器，以便在点击"添加"按钮时获取文本
@@ -266,8 +281,13 @@ class _AddItemDialogState extends ConsumerState<_AddItemDialog> {
                           itemBuilder: (BuildContext context, int index) {
                             final Map<String, dynamic> option =
                                 options.elementAt(index);
+                            final displayName = (widget.type == _BlockedType.tag && option['id'] != null)
+                                ? TagLocalizer.localize(
+                                    option['id'] as int, option['name'], Localizations.localeOf(context),
+                                  )
+                                : option['name'] as String;
                             return ListTile(
-                              title: Text(option['name']),
+                              title: Text(displayName),
                               subtitle: option['count'] != null
                                   ? Text(S.of(context).workCountLabel(option['count'] as int))
                                   : null,

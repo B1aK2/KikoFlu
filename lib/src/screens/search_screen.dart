@@ -9,6 +9,7 @@ import '../providers/search_history_provider.dart';
 import '../utils/l10n_extensions.dart';
 import '../utils/server_utils.dart';
 import '../utils/snackbar_util.dart';
+import '../utils/tag_localizer.dart';
 import '../widgets/scrollable_appbar.dart';
 import '../widgets/download_fab.dart';
 import 'search_result_screen.dart';
@@ -236,7 +237,11 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
     // 构建可读的显示文本
     final displayParts = _searchConditions.map((c) {
       final prefix = c.isExclude ? '${S.of(context).excludeMode} ' : '';
-      final value = c.type == SearchType.rjNumber ? 'RJ${c.value}' : c.value;
+      final value = c.type == SearchType.rjNumber
+          ? 'RJ${c.value}'
+          : c.type == SearchType.tag
+              ? TagLocalizer.localizeByName(c.value, Localizations.localeOf(context))
+              : c.value;
       return '$prefix${c.type.localizedLabel(context)}: $value';
     }).toList();
     final displayText = displayParts.join(', ');
@@ -431,7 +436,9 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
               final condition = _searchConditions[index];
               final displayValue = condition.type == SearchType.rjNumber
                   ? 'RJ${condition.value}'
-                  : condition.value;
+                  : condition.type == SearchType.tag
+                      ? TagLocalizer.localizeByName(condition.value, Localizations.localeOf(context))
+                      : condition.value;
 
               return Padding(
                 padding: EdgeInsets.only(
@@ -598,7 +605,18 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
                         filteredList = sourceList.where((item) {
                           final name =
                               (item['name'] ?? item['title'] ?? '').toString();
-                          return name.toLowerCase().contains(query);
+                          if (name.toLowerCase().contains(query)) return true;
+                          // Also search by localized name for tags
+                          if (_currentSearchType == SearchType.tag) {
+                            final id = item['id'] as int?;
+                            if (id != null) {
+                              final localizedName = TagLocalizer.localize(
+                                id, name, Localizations.localeOf(context),
+                              ).toLowerCase();
+                              if (localizedName.contains(query)) return true;
+                            }
+                          }
+                          return false;
                         }).toList();
                       }
 
@@ -606,7 +624,10 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
                         final name =
                             (item['name'] ?? item['title'] ?? '').toString();
                         final count = item['count'] ?? 0;
-                        return '$name ($count)';
+                        final displayName = (_currentSearchType == SearchType.tag && item['id'] != null)
+                            ? TagLocalizer.localize(item['id'] as int, name, Localizations.localeOf(context))
+                            : name;
+                        return '$displayName ($count)';
                       });
                     },
                     optionsMaxHeight: 300,
