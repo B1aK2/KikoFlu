@@ -1,3 +1,4 @@
+import 'dart:io' show Platform;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -21,6 +22,15 @@ class _DownloadPathSettingsScreenState
   String? _currentPath;
   bool _isLoading = false;
   bool _isMigrating = false;
+
+  String _getPlatformHint(BuildContext context) {
+    final s = S.of(context);
+    if (Platform.isAndroid) return s.platformHintAndroid;
+    if (Platform.isIOS) return s.platformHintIOS;
+    if (Platform.isWindows) return s.platformHintWindows;
+    if (Platform.isMacOS) return s.platformHintMacOS;
+    return s.platformHintDefault;
+  }
 
   @override
   void initState() {
@@ -307,7 +317,7 @@ class _DownloadPathSettingsScreenState
                         const SizedBox(width: 12),
                         Expanded(
                           child: Text(
-                            DownloadPathService.getPlatformHint(),
+                            _getPlatformHint(context),
                             style: const TextStyle(fontSize: 13),
                           ),
                         ),

@@ -124,7 +124,7 @@ class _SubtitleAdjustmentDialogState
       // 获取字幕库目录
       final libraryDir =
           await SubtitleLibraryService.getSubtitleLibraryDirectory();
-      final savedDir = Directory('${libraryDir.path}/已保存');
+      final savedDir = Directory('${libraryDir.path}/${SubtitleLibraryService.savedFolderName}');
       if (!await savedDir.exists()) {
         await savedDir.create(recursive: true);
       }

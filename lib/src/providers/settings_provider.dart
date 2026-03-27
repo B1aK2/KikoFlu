@@ -106,8 +106,7 @@ class LLMSettings {
     this.apiUrl = 'https://api.openai.com/v1/chat/completions',
     this.apiKey = '',
     this.model = 'gpt-3.5-turbo',
-    this.prompt =
-        'You are a professional translator. Translate the following text into Simplified Chinese (zh-CN). Output ONLY the translated text without any explanations, notes, or markdown code blocks.',
+    this.prompt = '',
     this.concurrency = 3,
   });
 

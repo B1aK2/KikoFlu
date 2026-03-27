@@ -3242,4 +3242,30 @@ class SJa extends S {
 
   @override
   String get translationCacheCleared => '翻訳キャッシュをクリアしました';
+
+  @override
+  String get platformHintAndroid =>
+      'Android: システムのファイルピッカーを使用します。ストレージ権限が必要な場合があります';
+
+  @override
+  String get platformHintIOS =>
+      'iOS: システム制限によりデフォルトパスを使用します。システムのファイルマネージャーで確認できます';
+
+  @override
+  String get platformHintWindows => 'Windows: 任意のアクセス可能なディレクトリを選択できます';
+
+  @override
+  String get platformHintMacOS => 'macOS: 任意のアクセス可能なディレクトリを選択できます';
+
+  @override
+  String get platformHintDefault => 'ダウンロードファイルを保存するディレクトリを選択してください';
+
+  @override
+  String get subtitleFolderParsed => '解析済み';
+
+  @override
+  String get subtitleFolderSaved => '保存済み';
+
+  @override
+  String get subtitleFolderUnknown => '不明な作品';
 }

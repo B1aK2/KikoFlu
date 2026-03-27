@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../l10n/app_localizations.dart';
 import '../providers/player_buttons_provider.dart';
+import '../utils/l10n_extensions.dart';
 import '../utils/snackbar_util.dart';
 import '../widgets/scrollable_appbar.dart';
 
@@ -203,7 +204,7 @@ class _PlayerButtonsSettingsScreenState
                                     .colorScheme
                                     .onSurfaceVariant,
                           ),
-                          title: Text(button.label),
+                          title: Text(button.localizedLabel(context)),
                           subtitle: Text(
                             isVisible ? S.of(context).shownInPlayer : S.of(context).shownInMoreMenu,
                             style: TextStyle(

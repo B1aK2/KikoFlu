@@ -1090,5 +1090,14 @@
   "playlistPrivacyPublicDesc": "任何人都可以查看",
 
   "clearTranslationCache": "清除翻譯快取",
-  "translationCacheCleared": "翻譯快取已清除"
+  "translationCacheCleared": "翻譯快取已清除",
+
+  "platformHintAndroid": "Android: 將使用系統檔案選擇器，可能需要儲存權限",
+  "platformHintIOS": "iOS: 受系統限制，使用預設路徑，可使用系統預設檔案瀏覽器查看",
+  "platformHintWindows": "Windows: 可選擇任意可存取的目錄",
+  "platformHintMacOS": "macOS: 可選擇任意可存取的目錄",
+  "platformHintDefault": "選擇一個用於儲存下載檔案的目錄",
+  "subtitleFolderParsed": "已解析",
+  "subtitleFolderSaved": "已儲存",
+  "subtitleFolderUnknown": "未知作品"
 }

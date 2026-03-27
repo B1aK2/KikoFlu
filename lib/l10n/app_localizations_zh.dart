@@ -3225,6 +3225,30 @@ class SZh extends S {
 
   @override
   String get translationCacheCleared => '翻译缓存已清除';
+
+  @override
+  String get platformHintAndroid => 'Android: 将使用系统文件选择器，可能需要存储权限';
+
+  @override
+  String get platformHintIOS => 'iOS: 受系统限制，使用默认路径，可使用系统默认文件浏览器查看';
+
+  @override
+  String get platformHintWindows => 'Windows: 可选择任意可访问的目录';
+
+  @override
+  String get platformHintMacOS => 'macOS: 可选择任意可访问的目录';
+
+  @override
+  String get platformHintDefault => '选择一个用于保存下载文件的目录';
+
+  @override
+  String get subtitleFolderParsed => '已解析';
+
+  @override
+  String get subtitleFolderSaved => '已保存';
+
+  @override
+  String get subtitleFolderUnknown => '未知作品';
 }
 
 /// The translations for Chinese, using the Han script (`zh_Hant`).
@@ -6448,4 +6472,28 @@ class SZhHant extends SZh {
 
   @override
   String get translationCacheCleared => '翻譯快取已清除';
+
+  @override
+  String get platformHintAndroid => 'Android: 將使用系統檔案選擇器，可能需要儲存權限';
+
+  @override
+  String get platformHintIOS => 'iOS: 受系統限制，使用預設路徑，可使用系統預設檔案瀏覽器查看';
+
+  @override
+  String get platformHintWindows => 'Windows: 可選擇任意可存取的目錄';
+
+  @override
+  String get platformHintMacOS => 'macOS: 可選擇任意可存取的目錄';
+
+  @override
+  String get platformHintDefault => '選擇一個用於儲存下載檔案的目錄';
+
+  @override
+  String get subtitleFolderParsed => '已解析';
+
+  @override
+  String get subtitleFolderSaved => '已儲存';
+
+  @override
+  String get subtitleFolderUnknown => '未知作品';
 }

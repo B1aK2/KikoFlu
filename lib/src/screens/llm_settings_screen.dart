@@ -33,6 +33,15 @@ class _LLMSettingsScreenState extends ConsumerState<LLMSettingsScreen> {
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_promptController.text.isEmpty) {
+      final locale = Localizations.localeOf(context);
+      _promptController.text = TranslationService.getDefaultLLMPrompt(locale);
+    }
+  }
+
+  @override
   void dispose() {
     _apiUrlController.dispose();
     _apiKeyController.dispose();

@@ -361,7 +361,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             leading: Icon(Icons.storage,
                 color: Theme.of(context).colorScheme.primary),
             title: Text(S.of(context).cacheManagement),
-            subtitle: Text('${S.of(context).currentCache}: $_cacheSize'),
+            subtitle: Text(S.of(context).currentCache(_cacheSize)),
             trailing: const Icon(Icons.arrow_forward_ios),
             onTap: () {
               _showCacheManagementDialog();

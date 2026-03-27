@@ -1385,5 +1385,14 @@
   "playlistPrivacyPublicDesc": "Anyone can view",
 
   "clearTranslationCache": "Clear Translation Cache",
-  "translationCacheCleared": "Translation cache cleared"
+  "translationCacheCleared": "Translation cache cleared",
+
+  "platformHintAndroid": "Android: System file picker will be used, storage permission may be required",
+  "platformHintIOS": "iOS: Due to system restrictions, the default path is used. Files can be accessed via the system file manager",
+  "platformHintWindows": "Windows: Any accessible directory can be selected",
+  "platformHintMacOS": "macOS: Any accessible directory can be selected",
+  "platformHintDefault": "Select a directory to save downloaded files",
+  "subtitleFolderParsed": "Parsed",
+  "subtitleFolderSaved": "Saved",
+  "subtitleFolderUnknown": "Unknown Works"
 }

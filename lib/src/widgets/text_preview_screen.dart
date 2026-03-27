@@ -202,7 +202,7 @@ class _TextPreviewScreenState extends State<TextPreviewScreen> {
           await SubtitleLibraryService.getSubtitleLibraryDirectory();
 
       // 创建“已保存”目录
-      final savedDir = Directory(path.join(libraryDir.path, '已保存'));
+      final savedDir = Directory(path.join(libraryDir.path, SubtitleLibraryService.savedFolderName));
       if (!await savedDir.exists()) {
         await savedDir.create();
       }

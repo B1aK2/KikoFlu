@@ -16,9 +16,9 @@ class SubtitleLibraryService {
   static const int _maxPathLength = 240;
 
   // 自动分配目录名称
-  static const String _parsedFolderName = '已解析';
-  static const String _unknownFolderName = '未知作品';
-  static const String _savedFolderName = '已保存';
+  static const String parsedFolderName = '已解析';
+  static const String unknownFolderName = '未知作品';
+  static const String savedFolderName = '已保存';
 
   // 缓存相关
   static List<Map<String, dynamic>>? _cachedFileTree;
@@ -223,7 +223,7 @@ class SubtitleLibraryService {
     try {
       final parsedFolder = _cachedFileTree!.firstWhere(
         (item) =>
-            item['title'] == _parsedFolderName && item['type'] == 'folder',
+            item['title'] == parsedFolderName && item['type'] == 'folder',
         orElse: () => <String, dynamic>{},
       );
 
@@ -446,7 +446,7 @@ class SubtitleLibraryService {
       final libraryDir = await getSubtitleLibraryDirectory();
 
       // 创建"已保存"文件夹
-      final savedDir = Directory('${libraryDir.path}/$_savedFolderName');
+      final savedDir = Directory('${libraryDir.path}/$savedFolderName');
       if (!await savedDir.exists()) {
         await savedDir.create(recursive: true);
         print('[SubtitleLibrary] 创建"已保存"文件夹: ${savedDir.path}');
@@ -497,7 +497,7 @@ class SubtitleLibraryService {
       }
 
       // 刷新"已保存"文件夹缓存
-      final savedDirPath = '${libraryDir.path}/$_savedFolderName';
+      final savedDirPath = '${libraryDir.path}/$savedFolderName';
       await _refreshDirectoriesAfterChange({savedDirPath});
 
       String message = '成功导入 $successCount 个字幕文件到"已保存"文件夹';
@@ -564,7 +564,7 @@ class SubtitleLibraryService {
         onProgress?.call('正在处理: $rootFolderName');
 
         final folderName = _normalizeFolderName(rootFolderName);
-        final targetCategory = _parsedFolderName;
+        final targetCategory = parsedFolderName;
         final targetDir =
             Directory('${libraryDir.path}/$targetCategory/$folderName');
 
@@ -641,8 +641,8 @@ class SubtitleLibraryService {
             onProgress: onProgress);
       } else {
         // 如果没有收集到具体路径（异常情况），回退到刷新整个分类
-        final parsedDirPath = '${libraryDir.path}/$_parsedFolderName';
-        final unknownDirPath = '${libraryDir.path}/$_unknownFolderName';
+        final parsedDirPath = '${libraryDir.path}/$parsedFolderName';
+        final unknownDirPath = '${libraryDir.path}/$unknownFolderName';
         onProgress?.call('正在刷新缓存...');
         await _refreshDirectoriesAfterChange({parsedDirPath, unknownDirPath},
             onProgress: onProgress);
@@ -835,8 +835,8 @@ class SubtitleLibraryService {
             onProgress: onProgress);
       } else {
         // 如果没有收集到具体路径（异常情况），回退到刷新整个分类
-        final parsedDirPath = '${libraryDir.path}/$_parsedFolderName';
-        final unknownDirPath = '${libraryDir.path}/$_unknownFolderName';
+        final parsedDirPath = '${libraryDir.path}/$parsedFolderName';
+        final unknownDirPath = '${libraryDir.path}/$unknownFolderName';
         onProgress?.call('正在刷新缓存...');
         await _refreshDirectoriesAfterChange({parsedDirPath, unknownDirPath},
             onProgress: onProgress);
@@ -1812,7 +1812,7 @@ class SubtitleLibraryService {
           final folderName = _normalizeFolderName(originalFolderName);
 
           // 匹配规则：整个子目录移动到"已解析"
-          final targetCategory = _parsedFolderName;
+          final targetCategory = parsedFolderName;
           final targetDir =
               Directory('${libraryDir.path}/$targetCategory/$folderName');
 
@@ -1873,7 +1873,7 @@ class SubtitleLibraryService {
             final hasSubtitles = await _hasSubtitleFiles(subDir);
             if (hasSubtitles) {
               final folderName = originalFolderName; // 未知作品不需要标准化
-              final targetCategory = _unknownFolderName;
+              final targetCategory = unknownFolderName;
               final targetDir =
                   Directory('${libraryDir.path}/$targetCategory/$folderName');
 
@@ -1925,7 +1925,7 @@ class SubtitleLibraryService {
           final fileName = file.path.split(Platform.pathSeparator).last;
           if (FileIconUtils.isLyricFile(fileName)) {
             try {
-              final targetCategory = _unknownFolderName;
+              final targetCategory = unknownFolderName;
               final targetDir = Directory('${libraryDir.path}/$targetCategory');
               await targetDir.create(recursive: true);
 
@@ -2070,7 +2070,7 @@ class SubtitleLibraryService {
   /// 向前兼容：迁移根目录的旧格式文件夹到"已解析"
   static Future<void> _migrateOldFormatFolders(Directory libraryDir) async {
     try {
-      final parsedFolderPath = '${libraryDir.path}/$_parsedFolderName';
+      final parsedFolderPath = '${libraryDir.path}/$parsedFolderName';
       final parsedFolder = Directory(parsedFolderPath);
 
       // 确保"已解析"文件夹存在
@@ -2086,9 +2086,9 @@ class SubtitleLibraryService {
           final folderName = entity.path.split(Platform.pathSeparator).last;
 
           // 跳过系统文件夹
-          if (folderName == _parsedFolderName ||
-              folderName == _unknownFolderName ||
-              folderName == _savedFolderName ||
+          if (folderName == parsedFolderName ||
+              folderName == unknownFolderName ||
+              folderName == savedFolderName ||
               folderName.startsWith('.')) {
             continue;
           }

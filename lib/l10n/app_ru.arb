@@ -1090,5 +1090,14 @@
   "playlistPrivacyPublicDesc": "Может просматривать любой",
 
   "clearTranslationCache": "Очистить кэш переводов",
-  "translationCacheCleared": "Кэш переводов очищен"
+  "translationCacheCleared": "Кэш переводов очищен",
+
+  "platformHintAndroid": "Android: Будет использован системный выбор файлов, может потребоваться разрешение на хранилище",
+  "platformHintIOS": "iOS: Из-за системных ограничений используется путь по умолчанию. Файлы можно просмотреть через системный файловый менеджер",
+  "platformHintWindows": "Windows: Можно выбрать любую доступную директорию",
+  "platformHintMacOS": "macOS: Можно выбрать любую доступную директорию",
+  "platformHintDefault": "Выберите директорию для сохранения загруженных файлов",
+  "subtitleFolderParsed": "Разобранные",
+  "subtitleFolderSaved": "Сохранённые",
+  "subtitleFolderUnknown": "Неизвестные"
 }

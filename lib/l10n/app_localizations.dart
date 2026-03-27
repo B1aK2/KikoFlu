@@ -5921,6 +5921,54 @@ abstract class S {
   /// In en, this message translates to:
   /// **'Translation cache cleared'**
   String get translationCacheCleared;
+
+  /// No description provided for @platformHintAndroid.
+  ///
+  /// In en, this message translates to:
+  /// **'Android: System file picker will be used, storage permission may be required'**
+  String get platformHintAndroid;
+
+  /// No description provided for @platformHintIOS.
+  ///
+  /// In en, this message translates to:
+  /// **'iOS: Due to system restrictions, the default path is used. Files can be accessed via the system file manager'**
+  String get platformHintIOS;
+
+  /// No description provided for @platformHintWindows.
+  ///
+  /// In en, this message translates to:
+  /// **'Windows: Any accessible directory can be selected'**
+  String get platformHintWindows;
+
+  /// No description provided for @platformHintMacOS.
+  ///
+  /// In en, this message translates to:
+  /// **'macOS: Any accessible directory can be selected'**
+  String get platformHintMacOS;
+
+  /// No description provided for @platformHintDefault.
+  ///
+  /// In en, this message translates to:
+  /// **'Select a directory to save downloaded files'**
+  String get platformHintDefault;
+
+  /// No description provided for @subtitleFolderParsed.
+  ///
+  /// In en, this message translates to:
+  /// **'Parsed'**
+  String get subtitleFolderParsed;
+
+  /// No description provided for @subtitleFolderSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved'**
+  String get subtitleFolderSaved;
+
+  /// No description provided for @subtitleFolderUnknown.
+  ///
+  /// In en, this message translates to:
+  /// **'Unknown Works'**
+  String get subtitleFolderUnknown;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

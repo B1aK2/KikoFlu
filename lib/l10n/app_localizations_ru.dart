@@ -3343,4 +3343,33 @@ class SRu extends S {
 
   @override
   String get translationCacheCleared => 'Кэш переводов очищен';
+
+  @override
+  String get platformHintAndroid =>
+      'Android: Будет использован системный выбор файлов, может потребоваться разрешение на хранилище';
+
+  @override
+  String get platformHintIOS =>
+      'iOS: Из-за системных ограничений используется путь по умолчанию. Файлы можно просмотреть через системный файловый менеджер';
+
+  @override
+  String get platformHintWindows =>
+      'Windows: Можно выбрать любую доступную директорию';
+
+  @override
+  String get platformHintMacOS =>
+      'macOS: Можно выбрать любую доступную директорию';
+
+  @override
+  String get platformHintDefault =>
+      'Выберите директорию для сохранения загруженных файлов';
+
+  @override
+  String get subtitleFolderParsed => 'Разобранные';
+
+  @override
+  String get subtitleFolderSaved => 'Сохранённые';
+
+  @override
+  String get subtitleFolderUnknown => 'Неизвестные';
 }

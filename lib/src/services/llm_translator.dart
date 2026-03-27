@@ -16,9 +16,11 @@ class LLMTranslator {
           'https://api.openai.com/v1/chat/completions';
       final apiKey = prefs.getString('llm_settings_api_key') ?? '';
       final model = prefs.getString('llm_settings_model') ?? 'gpt-3.5-turbo';
-      final prompt = prefs.getString('llm_settings_prompt') ??
-          TranslationService.getDefaultLLMPrompt(
-              locale ?? const Locale('zh'));
+      final savedPrompt = prefs.getString('llm_settings_prompt');
+      final prompt = (savedPrompt == null || savedPrompt.isEmpty)
+          ? TranslationService.getDefaultLLMPrompt(
+              locale ?? const Locale('zh'))
+          : savedPrompt;
 
       if (apiKey.isEmpty) {
         return 'Error: API Key is missing. Please configure LLM settings.';

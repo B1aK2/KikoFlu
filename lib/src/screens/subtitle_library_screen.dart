@@ -13,6 +13,21 @@ import '../utils/file_icon_utils.dart';
 import '../utils/snackbar_util.dart';
 import '../../l10n/app_localizations.dart';
 
+/// Maps disk folder names to localized display names.
+String _localizedFolderTitle(BuildContext context, String diskName) {
+  final s = S.of(context);
+  switch (diskName) {
+    case SubtitleLibraryService.parsedFolderName:
+      return s.subtitleFolderParsed;
+    case SubtitleLibraryService.savedFolderName:
+      return s.subtitleFolderSaved;
+    case SubtitleLibraryService.unknownFolderName:
+      return s.subtitleFolderUnknown;
+    default:
+      return diskName;
+  }
+}
+
 /// 字幕库界面
 class SubtitleLibraryScreen extends ConsumerStatefulWidget {
   const SubtitleLibraryScreen({super.key});
@@ -923,7 +938,7 @@ class _SubtitleLibraryScreenState extends ConsumerState<SubtitleLibraryScreen> {
       builder: (context) => AlertDialog(
         title: Text(S.of(context).confirmDelete),
         content: Text(
-            '${S.of(context).deleteItemConfirm(item['title'])}${item['type'] == 'folder' ? '\n\n${S.of(context).deleteFolderContentsWarning}' : ''}'),
+            '${S.of(context).deleteItemConfirm(item['type'] == 'folder' ? _localizedFolderTitle(context, item['title']) : item['title'])}${item['type'] == 'folder' ? '\n\n${S.of(context).deleteFolderContentsWarning}' : ''}'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
@@ -1329,7 +1344,7 @@ class _SubtitleLibraryScreenState extends ConsumerState<SubtitleLibraryScreen> {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Text(
-                        item['title'],
+                        isFolder ? _localizedFolderTitle(context, item['title']) : item['title'],
                         style: const TextStyle(fontSize: 14),
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -2011,11 +2026,12 @@ class _FolderBrowserDialogState extends State<_FolderBrowserDialog> {
       return S.of(context).rootDirectory;
     }
     final name = _pathStack.last.split(Platform.pathSeparator).last;
+    final displayName = _localizedFolderTitle(context, name);
     // 限制最多10个字符
-    if (name.length > 10) {
-      return '${name.substring(0, 10)}...';
+    if (displayName.length > 10) {
+      return '${displayName.substring(0, 10)}...';
     }
-    return name;
+    return displayName;
   }
 
   Future<void> _loadFolders() async {
@@ -2099,12 +2115,13 @@ class _FolderBrowserDialogState extends State<_FolderBrowserDialog> {
                             itemBuilder: (context, index) {
                               final folder = _currentFolders[index];
                               final name = folder['name'] as String;
+                              final displayName = _localizedFolderTitle(context, name);
                               final path = folder['path'] as String;
 
                               return ListTile(
                                 leading: const Icon(Icons.folder,
                                     color: Colors.amber),
-                                title: Text(name),
+                                title: Text(displayName),
                                 trailing: const Icon(Icons.chevron_right),
                                 onTap: () => _navigateToFolder(path),
                               );

@@ -3324,4 +3324,33 @@ class SEn extends S {
 
   @override
   String get translationCacheCleared => 'Translation cache cleared';
+
+  @override
+  String get platformHintAndroid =>
+      'Android: System file picker will be used, storage permission may be required';
+
+  @override
+  String get platformHintIOS =>
+      'iOS: Due to system restrictions, the default path is used. Files can be accessed via the system file manager';
+
+  @override
+  String get platformHintWindows =>
+      'Windows: Any accessible directory can be selected';
+
+  @override
+  String get platformHintMacOS =>
+      'macOS: Any accessible directory can be selected';
+
+  @override
+  String get platformHintDefault =>
+      'Select a directory to save downloaded files';
+
+  @override
+  String get subtitleFolderParsed => 'Parsed';
+
+  @override
+  String get subtitleFolderSaved => 'Saved';
+
+  @override
+  String get subtitleFolderUnknown => 'Unknown Works';
 }

@@ -250,7 +250,7 @@ class _OfflineFileExplorerWidgetState
 
       _audioWithLibrarySubtitles.clear();
       final workId = widget.work.id;
-      final parsedFolderPath = '${libraryDir.path}/已解析';
+      final parsedFolderPath = '${libraryDir.path}/${SubtitleLibraryService.parsedFolderName}';
 
       // 生成可能的文件夹名称列表（支持带前导零的格式）
       final possibleFolderNames = [
