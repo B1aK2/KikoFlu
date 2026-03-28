@@ -32,10 +32,12 @@ import '../widgets/cover_preview_dialog.dart';
 
 class WorkDetailScreen extends ConsumerStatefulWidget {
   final Work work;
+  final String? heroTag;
 
   const WorkDetailScreen({
     super.key,
     required this.work,
+    this.heroTag,
   });
 
   @override
@@ -610,19 +612,20 @@ class _WorkDetailScreenState extends ConsumerState<WorkDetailScreen> {
     final work = _detailedWork ?? widget.work;
 
     // 封面图片组件
+    final effectiveHeroTag = widget.heroTag ?? 'work_cover_${widget.work.id}';
     final coverWidget = GestureDetector(
       onLongPress: () {
         CoverPreviewDialog.show(
           context,
           imageUrl: work.getCoverImageUrl(host, token: token),
           identifier: widget.work.id.toString(),
-          heroTag: 'work_cover_${widget.work.id}',
+          heroTag: effectiveHeroTag,
         );
       },
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
         child: Hero(
-          tag: 'work_cover_${widget.work.id}',
+          tag: effectiveHeroTag,
           child: Material(
             color: Colors.transparent,
             borderRadius: BorderRadius.circular(12),

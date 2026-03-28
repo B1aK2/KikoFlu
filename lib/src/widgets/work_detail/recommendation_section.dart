@@ -177,7 +177,10 @@ class _RecommendationCard extends ConsumerWidget {
         onTap: () {
           Navigator.of(context).push(
             MaterialPageRoute(
-              builder: (context) => WorkDetailScreen(work: work),
+              builder: (context) => WorkDetailScreen(
+                work: work,
+                heroTag: 'rec_work_cover_${work.id}',
+              ),
             ),
           );
         },
