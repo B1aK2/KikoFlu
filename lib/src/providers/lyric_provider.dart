@@ -2,6 +2,7 @@ import 'dart:io';
 import 'dart:ui' show Locale;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:dio/dio.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/lyric.dart';
 import '../models/audio_track.dart';
@@ -515,9 +516,88 @@ class LyricController extends StateNotifier<LyricState> {
         return;
       }
 
-      // 批量翻译
-      final translatedTexts =
-          await translationService.translateBatch(textsToTranslate);
+      // 将歌词行用换行符拼接后分块翻译，复用 translateLongText 的分块机制
+      // 使用特殊分隔符以便翻译后准确拆分回各行
+      const separator = '\n';
+      const maxChunkSize = 1500;
+
+      // 按字符限制分块（保证每块不超过 maxChunkSize）
+      final chunks = <String>[];
+      final chunkLineCounts = <int>[]; // 每块包含的行数
+      String currentChunk = '';
+      int currentLineCount = 0;
+
+      for (final text in textsToTranslate) {
+        final estimatedLength = currentChunk.length + text.length + 1;
+        if (estimatedLength > maxChunkSize && currentChunk.isNotEmpty) {
+          chunks.add(currentChunk);
+          chunkLineCounts.add(currentLineCount);
+          currentChunk = '';
+          currentLineCount = 0;
+        }
+        if (currentChunk.isNotEmpty) currentChunk += separator;
+        currentChunk += text;
+        currentLineCount++;
+      }
+      if (currentChunk.isNotEmpty) {
+        chunks.add(currentChunk);
+        chunkLineCounts.add(currentLineCount);
+      }
+
+      // 并发翻译各块
+      final prefs =
+          await SharedPreferences.getInstance();
+      final source = prefs.getString('translation_source') ?? 'google';
+      int concurrency = 1;
+      if (source == 'llm') {
+        concurrency = prefs.getInt('llm_settings_concurrency') ?? 3;
+      }
+
+      final chunkResults = List<String>.filled(chunks.length, '');
+      int currentIdx = 0;
+
+      Future<void> worker() async {
+        while (true) {
+          final idx = currentIdx;
+          if (idx >= chunks.length) return;
+          currentIdx++;
+          try {
+            chunkResults[idx] =
+                await translationService.translate(chunks[idx]);
+          } catch (e) {
+            chunkResults[idx] = chunks[idx]; // 失败保留原文
+          }
+        }
+      }
+
+      await Future.wait(List.generate(concurrency, (_) => worker()));
+
+      // 将翻译结果按换行符拆回逐行，映射回原歌词
+      final translatedTexts = <String>[];
+      for (int i = 0; i < chunkResults.length; i++) {
+        final lines = chunkResults[i].split(separator);
+        final expectedCount = chunkLineCounts[i];
+        // 翻译器可能合并/拆分行，尽量对齐
+        if (lines.length == expectedCount) {
+          translatedTexts.addAll(lines);
+        } else if (lines.length > expectedCount) {
+          // 多出来的行合并到最后一行
+          translatedTexts.addAll(lines.take(expectedCount - 1));
+          translatedTexts.add(lines.skip(expectedCount - 1).join(' '));
+        } else {
+          // 不够的行用原文补齐
+          translatedTexts.addAll(lines);
+          final startIdx = translatedTexts.length - lines.length;
+          for (int j = lines.length; j < expectedCount; j++) {
+            final origIdx = startIdx + j;
+            translatedTexts.add(
+              origIdx < textsToTranslate.length
+                  ? textsToTranslate[origIdx]
+                  : '',
+            );
+          }
+        }
+      }
 
       // 构建翻译后的歌词列表（保留原时间戳）
       final translated = List<LyricLine>.from(state.lyrics);
