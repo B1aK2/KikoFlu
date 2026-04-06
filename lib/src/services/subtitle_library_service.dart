@@ -244,6 +244,9 @@ class SubtitleLibraryService {
     _cacheUpdateController.add(null);
   }
 
+  /// 确保数据库已初始化并完成迁移（供外部调用）
+  static Future<void> ensureInitialized() => _ensureDatabase();
+
   /// 确保数据库已初始化并完成迁移
   static Future<void> _ensureDatabase() async {
     if (_dbInitialized) return;

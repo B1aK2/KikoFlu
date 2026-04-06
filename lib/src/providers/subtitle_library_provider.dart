@@ -23,6 +23,7 @@ class SubtitleLibraryNotifier extends StateNotifier<Set<int>> {
 
   Future<void> refresh() async {
     try {
+      await SubtitleLibraryService.ensureInitialized();
       final ids = await SubtitleDatabase.instance.getDistinctWorkIds();
       if (mounted) {
         state = ids;

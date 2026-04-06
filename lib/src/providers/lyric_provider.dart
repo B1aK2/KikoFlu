@@ -270,6 +270,9 @@ class LyricController extends StateNotifier<LyricState> {
 
       print('[Lyric] 在字幕库中查找: track="$trackTitle", workId=$workId');
 
+      // 确保数据库已初始化
+      await SubtitleLibraryService.ensureInitialized();
+
       // 优先级1: 通过 workId 查询数据库
       if (workId != null) {
         final records =
