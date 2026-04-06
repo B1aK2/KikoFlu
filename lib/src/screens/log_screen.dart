@@ -1,4 +1,7 @@
 import 'dart:async';
+import 'dart:io';
+import 'dart:typed_data';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../services/log_service.dart';
@@ -162,12 +165,32 @@ class _LogScreenState extends State<LogScreen> {
                   break;
                 case 'export':
                   try {
-                    final path = await LogService.instance.exportToFile();
-                    if (mounted) {
-                      SnackBarUtil.showSuccess(
-                        context,
-                        l10n.logExported(path),
+                    final logService = LogService.instance;
+                    final content = logService.exportAsText();
+                    final fileName = logService.exportFileName;
+
+                    if (Platform.isIOS) {
+                      // iOS: 通过 saveFile 的 bytes 参数直接保存
+                      final result = await FilePicker.platform.saveFile(
+                        dialogTitle: l10n.logExport,
+                        fileName: fileName,
+                        bytes: Uint8List.fromList(content.codeUnits),
                       );
+                      if (result != null && mounted) {
+                        SnackBarUtil.showSuccess(context, l10n.logExported(result));
+                      }
+                    } else {
+                      // Android/Windows/macOS/Linux: 选择路径后写入
+                      final result = await FilePicker.platform.saveFile(
+                        dialogTitle: l10n.logExport,
+                        fileName: fileName,
+                      );
+                      if (result != null) {
+                        await File(result).writeAsString(content);
+                        if (mounted) {
+                          SnackBarUtil.showSuccess(context, l10n.logExported(result));
+                        }
+                      }
                     }
                   } catch (e) {
                     if (mounted) {

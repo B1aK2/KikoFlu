@@ -165,12 +165,26 @@ class LogService {
     return buffer.toString();
   }
 
-  Future<String> exportToFile() async {
-    final dir = await getApplicationDocumentsDirectory();
+  Future<String> exportToFile([String? outputPath]) async {
     final timestamp = DateTime.now().toIso8601String().replaceAll(':', '-').split('.').first;
-    final file = File(p.join(dir.path, 'kikoflu_log_$timestamp.txt'));
+    final fileName = 'kikoflu_log_$timestamp.txt';
+
+    if (outputPath != null) {
+      final file = File(outputPath);
+      await file.writeAsString(exportAsText());
+      return file.path;
+    }
+
+    final dir = await getApplicationDocumentsDirectory();
+    final file = File(p.join(dir.path, fileName));
     await file.writeAsString(exportAsText());
     return file.path;
+  }
+
+  /// 生成默认导出文件名
+  String get exportFileName {
+    final timestamp = DateTime.now().toIso8601String().replaceAll(':', '-').split('.').first;
+    return 'kikoflu_log_$timestamp.txt';
   }
 }
 
