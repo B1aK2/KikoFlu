@@ -2554,9 +2554,6 @@ class SEn extends S {
   String get cornerRadius => 'Corner Radius';
 
   @override
-  String get textStroke => 'Text Stroke';
-
-  @override
   String get horizontalPadding => 'Horizontal Padding';
 
   @override

@@ -28,7 +28,6 @@ class _DesktopFloatingLyricState extends State<DesktopFloatingLyric>
   double _cornerRadius = 8.0;
   double _paddingHorizontal = 16.0;
   double _paddingVertical = 8.0;
-  double _textStrokeWidth = 0.0;
 
   @override
   void initState() {
@@ -58,8 +57,6 @@ class _DesktopFloatingLyricState extends State<DesktopFloatingLyric>
       _paddingHorizontal = (args['paddingHorizontal'] as num).toDouble();
     if (args.containsKey('paddingVertical'))
       _paddingVertical = (args['paddingVertical'] as num).toDouble();
-    if (args.containsKey('textStrokeWidth'))
-      _textStrokeWidth = (args['textStrokeWidth'] as num).toDouble();
   }
 
   Future<void> _initWindow() async {
@@ -139,30 +136,18 @@ class _DesktopFloatingLyricState extends State<DesktopFloatingLyric>
                     fontSize: _fontSize,
                     fontWeight: FontWeight.bold,
                     color: _textColor,
-                    shadows: _textStrokeWidth > 0
-                        ? [
-                            Shadow(
-                              offset: const Offset(1.0, 1.0),
-                              blurRadius: _textStrokeWidth * 2,
-                              color: _textColor.withValues(alpha: 0.9),
-                            ),
-                            Shadow(
-                              offset: const Offset(-1.0, -1.0),
-                              blurRadius: _textStrokeWidth * 2,
-                              color: _textColor.withValues(alpha: 0.9),
-                            ),
-                            Shadow(
-                              offset: const Offset(1.0, -1.0),
-                              blurRadius: _textStrokeWidth * 2,
-                              color: _textColor.withValues(alpha: 0.9),
-                            ),
-                            Shadow(
-                              offset: const Offset(-1.0, 1.0),
-                              blurRadius: _textStrokeWidth * 2,
-                              color: _textColor.withValues(alpha: 0.9),
-                            ),
-                          ]
-                        : null,
+                    shadows: [
+                      Shadow(
+                        offset: const Offset(1.0, 1.0),
+                        blurRadius: 3.0,
+                        color: Colors.black.withOpacity(0.8),
+                      ),
+                      Shadow(
+                        offset: const Offset(-1.0, -1.0),
+                        blurRadius: 3.0,
+                        color: Colors.black.withOpacity(0.8),
+                      ),
+                    ],
                   ),
                 ),
               ),

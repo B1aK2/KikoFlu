@@ -14,7 +14,6 @@ class FloatingLyricStyle {
   final double cornerRadius; // 圆角半径 (0-24)
   final double paddingHorizontal; // 水平内边距 (12-40)
   final double paddingVertical; // 垂直内边距 (6-20)
-  final double textStrokeWidth; // 文字描边宽度 (0-4)
 
   const FloatingLyricStyle({
     this.fontSize = 14.0,
@@ -24,7 +23,6 @@ class FloatingLyricStyle {
     this.cornerRadius = 16.0,
     this.paddingHorizontal = 20.0,
     this.paddingVertical = 10.0,
-    this.textStrokeWidth = 0.0,
   });
 
   FloatingLyricStyle copyWith({
@@ -35,7 +33,6 @@ class FloatingLyricStyle {
     double? cornerRadius,
     double? paddingHorizontal,
     double? paddingVertical,
-    double? textStrokeWidth,
   }) {
     return FloatingLyricStyle(
       fontSize: fontSize ?? this.fontSize,
@@ -45,7 +42,6 @@ class FloatingLyricStyle {
       cornerRadius: cornerRadius ?? this.cornerRadius,
       paddingHorizontal: paddingHorizontal ?? this.paddingHorizontal,
       paddingVertical: paddingVertical ?? this.paddingVertical,
-      textStrokeWidth: textStrokeWidth ?? this.textStrokeWidth,
     );
   }
 
@@ -59,7 +55,6 @@ class FloatingLyricStyle {
       'cornerRadius': cornerRadius,
       'paddingHorizontal': paddingHorizontal,
       'paddingVertical': paddingVertical,
-      'textStrokeWidth': textStrokeWidth,
     };
   }
 
@@ -74,7 +69,6 @@ class FloatingLyricStyle {
       cornerRadius: map['cornerRadius']?.toDouble() ?? 16.0,
       paddingHorizontal: map['paddingHorizontal']?.toDouble() ?? 20.0,
       paddingVertical: map['paddingVertical']?.toDouble() ?? 10.0,
-      textStrokeWidth: map['textStrokeWidth']?.toDouble() ?? 0.0,
     );
   }
 
@@ -182,8 +176,6 @@ class FloatingLyricStyleNotifier extends StateNotifier<FloatingLyricStyle>
         prefs.getDouble('${_keyPrefix}paddingHorizontal') ?? 20.0;
     final paddingVertical =
         prefs.getDouble('${_keyPrefix}paddingVertical') ?? 10.0;
-    final textStrokeWidth =
-        prefs.getDouble('${_keyPrefix}textStrokeWidth') ?? 0.0;
 
     state = FloatingLyricStyle(
       fontSize: fontSize,
@@ -193,7 +185,6 @@ class FloatingLyricStyleNotifier extends StateNotifier<FloatingLyricStyle>
       cornerRadius: cornerRadius,
       paddingHorizontal: paddingHorizontal,
       paddingVertical: paddingVertical,
-      textStrokeWidth: textStrokeWidth,
     );
 
     // 应用到悬浮窗
@@ -214,8 +205,6 @@ class FloatingLyricStyleNotifier extends StateNotifier<FloatingLyricStyle>
         '${_keyPrefix}paddingHorizontal', state.paddingHorizontal);
     await prefs.setDouble(
         '${_keyPrefix}paddingVertical', state.paddingVertical);
-    await prefs.setDouble(
-        '${_keyPrefix}textStrokeWidth', state.textStrokeWidth);
   }
 
   void applyStyle() {
@@ -226,7 +215,6 @@ class FloatingLyricStyleNotifier extends StateNotifier<FloatingLyricStyle>
       cornerRadius: state.cornerRadius,
       paddingHorizontal: state.paddingHorizontal,
       paddingVertical: state.paddingVertical,
-      textStrokeWidth: state.textStrokeWidth,
     );
   }
 
@@ -270,12 +258,6 @@ class FloatingLyricStyleNotifier extends StateNotifier<FloatingLyricStyle>
 
   Future<void> updatePaddingVertical(double padding) async {
     state = state.copyWith(paddingVertical: padding);
-    await _save();
-    _applyStyle();
-  }
-
-  Future<void> updateTextStrokeWidth(double width) async {
-    state = state.copyWith(textStrokeWidth: width);
     await _save();
     _applyStyle();
   }
