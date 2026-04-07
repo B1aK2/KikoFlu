@@ -50,7 +50,7 @@
 - 多维度筛选（标签、评分、发售日期等）
 - 完整作品信息展示
 
-### 🌐 国际化
+### 🌐 国际化（即将发布）
 - 简体中文 / 繁體中文 / English / 日本語 / Русский
 
 ### ⚙️ 设置
@@ -101,7 +101,7 @@ flutter pub get
 
 ## 相关项目
 
-- [Kikoeru](https://github.com/Number178/kikoeru-express) — 自建后端服务器（推荐）
+- [Kikoeru](https://github.com/Number178/kikoeru-express) — 自建后端服务器
 - [asmr.one](https://www.asmr.one) — 在线服务
 
 ## 开源协议

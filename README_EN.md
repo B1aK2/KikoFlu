@@ -50,7 +50,7 @@
 - Multi-dimensional filtering (tags, rating, release date, etc.)
 - Detailed work information display
 
-### 🌐 Internationalization
+### 🌐 Internationalization (Coming Soon)
 - 简体中文 / 繁體中文 / English / 日本語 / Русский
 
 ### ⚙️ Settings
@@ -101,7 +101,7 @@ flutter pub get
 
 ## Related Projects
 
-- [Kikoeru](https://github.com/Number178/kikoeru-express) — Self-hosted backend server (recommended)
+- [Kikoeru](https://github.com/Number178/kikoeru-express) — Self-hosted backend server
 - [asmr.one](https://www.asmr.one) — Online service
 
 ## License

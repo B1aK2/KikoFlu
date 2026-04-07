@@ -50,7 +50,7 @@
 - 多次元フィルタ（タグ、評価、発売日など）
 - 作品情報の詳細表示
 
-### 🌐 多言語対応
+### 🌐 多言語対応（近日公開）
 - 简体中文 / 繁體中文 / English / 日本語 / Русский
 
 ### ⚙️ 設定
@@ -101,7 +101,7 @@ flutter pub get
 
 ## 関連プロジェクト
 
-- [Kikoeru](https://github.com/Number178/kikoeru-express) — セルフホスト型バックエンドサーバー（推奨）
+- [Kikoeru](https://github.com/Number178/kikoeru-express) — セルフホスト型バックエンドサーバー
 - [asmr.one](https://www.asmr.one) — オンラインサービス
 
 ## ライセンス
