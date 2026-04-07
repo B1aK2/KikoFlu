@@ -55,7 +55,7 @@
 
 ### ⚙️ Settings
 - Multi-account support
-- Custom server address ([Guide](https://github.com/Meteor-Sage/KikoFlu/wiki/%E4%BD%BF%E7%94%A8%E8%87%AA%E5%BB%BA%E5%90%8E%E7%AB%AF%E6%9C%8D%E5%8A%A1%E5%99%A8)) with connection latency testing
+- Custom server address ([Guide](https://github.com/pa-jesusf/KikoFlu/wiki/%E4%BD%BF%E7%94%A8%E8%87%AA%E5%BB%BA%E5%90%8E%E7%AB%AF%E6%9C%8D%E5%8A%A1%E5%99%A8)) with connection latency testing
 - Cache size limit and cleanup strategy
 - Theme and color scheme customization
 - Extensive UI customization options
@@ -69,7 +69,7 @@
 
 ## Download
 
-Go to [Releases](https://github.com/Meteor-Sage/KikoFlu/releases) for the latest version.
+Go to [Releases](https://github.com/pa-jesusf/KikoFlu/releases/latest) for the latest version.
 
 Platforms: Android (universal / arm64 / armeabi-v7a / x86_64), iOS (unsigned IPA), Windows (installer / portable), macOS (DMG), Linux (x64 / arm64)
 
@@ -82,7 +82,7 @@ Platforms: Android (universal / arm64 / armeabi-v7a / x86_64), iOS (unsigned IPA
 - Dart SDK 3.0+
 
 ```bash
-git clone https://github.com/Meteor-Sage/KikoFlu.git
+git clone https://github.com/pa-jesusf/KikoFlu.git
 cd KikoFlu
 flutter pub get
 ```
@@ -110,5 +110,5 @@ flutter pub get
 
 ## Contact
 
-- **Bug Reports**: [Issues](https://github.com/Meteor-Sage/KikoFlu/issues)
+- **Bug Reports**: [Issues](https://github.com/pa-jesusf/KikoFlu/issues)
 - **Community**: [Telegram](https://t.me/+PrkiN-pZrXs4ZTU1)

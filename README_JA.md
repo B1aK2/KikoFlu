@@ -55,7 +55,7 @@
 
 ### ⚙️ 設定
 - マルチアカウント対応
-- カスタムサーバーアドレス（[ガイド](https://github.com/Meteor-Sage/KikoFlu/wiki/%E4%BD%BF%E7%94%A8%E8%87%AA%E5%BB%BA%E5%90%8E%E7%AB%AF%E6%9C%8D%E5%8A%A1%E5%99%A8)）、接続遅延テスト可能
+- カスタムサーバーアドレス（[ガイド](https://github.com/pa-jesusf/KikoFlu/wiki/%E4%BD%BF%E7%94%A8%E8%87%AA%E5%BB%BA%E5%90%8E%E7%AB%AF%E6%9C%8D%E5%8A%A1%E5%99%A8)）、接続遅延テスト可能
 - キャッシュサイズ制限とクリーンアップ戦略
 - テーマ・カラースキームのカスタマイズ
 - 豊富な UI カスタマイズオプション
@@ -69,7 +69,7 @@
 
 ## ダウンロード
 
-最新バージョンは [Releases](https://github.com/Meteor-Sage/KikoFlu/releases) からダウンロードできます。
+最新バージョンは [Releases](https://github.com/pa-jesusf/KikoFlu/releases/latest) からダウンロードできます。
 
 対応プラットフォーム：Android（universal / arm64 / armeabi-v7a / x86_64）、iOS（未署名 IPA）、Windows（インストーラー / ポータブル）、macOS（DMG）、Linux（x64 / arm64）
 
@@ -82,7 +82,7 @@
 - Dart SDK 3.0+
 
 ```bash
-git clone https://github.com/Meteor-Sage/KikoFlu.git
+git clone https://github.com/pa-jesusf/KikoFlu.git
 cd KikoFlu
 flutter pub get
 ```
@@ -110,5 +110,5 @@ flutter pub get
 
 ## お問い合わせ
 
-- **バグ報告**：[Issues](https://github.com/Meteor-Sage/KikoFlu/issues)
+- **バグ報告**：[Issues](https://github.com/pa-jesusf/KikoFlu/issues)
 - **コミュニティ**：[Telegram](https://t.me/+PrkiN-pZrXs4ZTU1)

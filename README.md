@@ -55,7 +55,7 @@
 
 ### ⚙️ 设置
 - 多账户支持
-- 自定义服务器地址（[使用指南](https://github.com/Meteor-Sage/KikoFlu/wiki/%E4%BD%BF%E7%94%A8%E8%87%AA%E5%BB%BA%E5%90%8E%E7%AB%AF%E6%9C%8D%E5%8A%A1%E5%99%A8)），可测试连接延迟
+- 自定义服务器地址（[使用指南](https://github.com/pa-jesusf/KikoFlu/wiki/%E4%BD%BF%E7%94%A8%E8%87%AA%E5%BB%BA%E5%90%8E%E7%AB%AF%E6%9C%8D%E5%8A%A1%E5%99%A8)），可测试连接延迟
 - 自定义缓存大小限制与清理策略
 - 主题模式、配色方案自由选择
 - 丰富的界面自定义选项
@@ -69,7 +69,7 @@
 
 ## 下载
 
-前往 [Releases](https://github.com/Meteor-Sage/KikoFlu/releases) 下载最新版本。
+前往 [Releases](https://github.com/pa-jesusf/KikoFlu/releases/latest) 下载最新版本。
 
 支持平台：Android（universal / arm64 / armeabi-v7a / x86_64）、iOS（未签名 IPA）、Windows（安装包 / 便携版）、macOS（DMG）、Linux（x64 / arm64）
 
@@ -82,7 +82,7 @@
 - Dart SDK 3.0+
 
 ```bash
-git clone https://github.com/Meteor-Sage/KikoFlu.git
+git clone https://github.com/pa-jesusf/KikoFlu.git
 cd KikoFlu
 flutter pub get
 ```
@@ -110,7 +110,7 @@ flutter pub get
 
 ## 联系方式
 
-- **问题反馈**：[Issues](https://github.com/Meteor-Sage/KikoFlu/issues)
+- **问题反馈**：[Issues](https://github.com/pa-jesusf/KikoFlu/issues)
 - **交流群组**：[Telegram](https://t.me/+PrkiN-pZrXs4ZTU1)
 
 ---
