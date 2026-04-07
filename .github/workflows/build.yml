@@ -2,11 +2,8 @@ name: Build and Release
 
 on:
   push:
-    # branches: [ "main" ]
-    # tags:
-    #   - 'v*'
-  pull_request:
-    branches: [ "main" ]
+    tags:
+      - 'v*'
   workflow_dispatch:
 
 jobs:
@@ -251,6 +248,7 @@ jobs:
   linux-arm64:
     name: Linux ARM64 Build
     runs-on: ubuntu-22.04
+    if: github.event_name == 'workflow_dispatch'
     steps:
       - uses: actions/checkout@v6
 

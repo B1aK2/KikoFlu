@@ -26,11 +26,15 @@ class KikoeruApiService {
     _dio.interceptors.add(
       InterceptorsWrapper(
         onRequest: (options, handler) {
-          // 模拟浏览器环境以加速访问和避免被拦截
-          options.headers['User-Agent'] =
-              'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36';
-          options.headers['Referer'] = 'https://www.asmr.one/';
-          options.headers['Origin'] = 'https://www.asmr.one';
+          // 仅在访问官方服务器时设置浏览器 UA，自建服务器使用应用标识
+          if (ServerUtils.isOfficialServer(_host)) {
+            options.headers['User-Agent'] =
+                'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36';
+            options.headers['Referer'] = 'https://www.asmr.one/';
+            options.headers['Origin'] = 'https://www.asmr.one';
+          } else {
+            options.headers['User-Agent'] = 'KikoFlu';
+          }
           // Dart HttpClient 默认支持 gzip，显式声明可确保服务器知晓
           options.headers['Accept-Encoding'] = 'gzip';
 

@@ -19,7 +19,7 @@ def fetch_tags():
     req = urllib.request.Request(API_URL, headers={
         'Referer': 'https://www.asmr.one/',
         'Origin': 'https://www.asmr.one',
-        'User-Agent': 'Mozilla/5.0',
+        'User-Agent': 'KikoFlu/tag-generator',
     })
     with urllib.request.urlopen(req, timeout=30) as resp:
         return json.loads(resp.read().decode('utf-8'))

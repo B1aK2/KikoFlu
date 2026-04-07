@@ -7,7 +7,7 @@
 
   [![Flutter](https://img.shields.io/badge/Flutter-3.0+-02569B?logo=flutter)](https://flutter.dev)
   [![Platform](https://img.shields.io/badge/Platform-Android%20%7C%20iOS%20%7C%20Windows%20%7C%20macOS-lightgrey)](https://github.com/Meteor-Sage/Kikoeru-Flutter)
-  [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+  [![License](https://img.shields.io/badge/License-GPLv3-blue.svg)](LICENSE)
 
 </div>
 
@@ -104,13 +104,13 @@ flutter build windows --release
 
 ## 开源协议
 
-[MIT License](LICENSE)
+[GPL-3.0 License](LICENSE)
 
 ---
 
 ## 相关
-- [asmr.one](https://www.asmr.one) - 提供在线服务
-- [Kikoeru](https://github.com/Number178/kikoeru-express) - 提供后端服务
+- [Kikoeru](https://github.com/Number178/kikoeru-express) - 自建后端服务器
+- [asmr.one](https://www.asmr.one) - 在线服务
 ---
 
 ## 联系方式
