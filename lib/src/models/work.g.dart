@@ -131,6 +131,7 @@ Tag _$TagFromJson(Map<String, dynamic> json) => Tag(
       upvote: (json['upvote'] as num?)?.toInt(),
       downvote: (json['downvote'] as num?)?.toInt(),
       myVote: (json['myVote'] as num?)?.toInt(),
+      voteStatus: (json['voteStatus'] as num?)?.toInt(),
     );
 
 Map<String, dynamic> _$TagToJson(Tag instance) => <String, dynamic>{
@@ -139,6 +140,7 @@ Map<String, dynamic> _$TagToJson(Tag instance) => <String, dynamic>{
       'upvote': instance.upvote,
       'downvote': instance.downvote,
       'myVote': instance.myVote,
+      'voteStatus': instance.voteStatus,
     };
 
 AudioFile _$AudioFileFromJson(Map<String, dynamic> json) => AudioFile(

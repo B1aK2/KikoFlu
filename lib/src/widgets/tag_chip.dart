@@ -32,9 +32,11 @@ class TagChip extends StatelessWidget {
   Widget build(BuildContext context) {
     final locale = Localizations.localeOf(context);
     final localizedName = TagLocalizer.localize(tag.id, tag.name, locale);
+    final isUserAdded = tag.isUserAdded;
+
     // 如果提供了自定义样式参数，使用自定义样式
     if (fontSize != null || padding != null || borderRadius != null) {
-      return GestureDetector(
+      Widget chip = GestureDetector(
         onTap: onTap ??
             () {
               print('[TagChip] Clicked tag: ${tag.name}, id: ${tag.id}');
@@ -55,19 +57,20 @@ class TagChip extends StatelessWidget {
           padding:
               padding ?? const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
           decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.primaryContainer,
+            color: Theme.of(context).colorScheme.primaryContainer.withValues(alpha: isUserAdded ? 0.5 : 1.0),
             borderRadius: BorderRadius.circular(borderRadius ?? 12),
           ),
           child: Text(
             localizedName,
             style: TextStyle(
               fontSize: fontSize ?? 11,
-              color: Theme.of(context).colorScheme.onPrimaryContainer,
+              color: Theme.of(context).colorScheme.onPrimaryContainer.withValues(alpha: isUserAdded ? 0.55 : 1.0),
               fontWeight: fontWeight ?? FontWeight.w500,
             ),
           ),
         ),
       );
+      return chip;
     }
 
     // 使用默认的 Chip 样式
@@ -92,10 +95,10 @@ class TagChip extends StatelessWidget {
             },
         onDeleted: onDeleted,
         deleteIcon: const Icon(Icons.close, size: 18),
-        backgroundColor: Theme.of(context).colorScheme.secondaryContainer,
+        backgroundColor: Theme.of(context).colorScheme.secondaryContainer.withValues(alpha: isUserAdded ? 0.5 : 1.0),
         labelStyle: TextStyle(
           fontSize: compact ? 10 : null,
-          color: Theme.of(context).colorScheme.onSecondaryContainer,
+          color: Theme.of(context).colorScheme.onSecondaryContainer.withValues(alpha: isUserAdded ? 0.55 : 1.0),
         ),
         padding: compact
             ? const EdgeInsets.symmetric(horizontal: 4, vertical: 0)
@@ -121,10 +124,10 @@ class TagChip extends StatelessWidget {
                 ),
               );
             },
-        backgroundColor: Theme.of(context).colorScheme.secondaryContainer,
+        backgroundColor: Theme.of(context).colorScheme.secondaryContainer.withValues(alpha: isUserAdded ? 0.5 : 1.0),
         labelStyle: TextStyle(
           fontSize: compact ? 10 : null,
-          color: Theme.of(context).colorScheme.onSecondaryContainer,
+          color: Theme.of(context).colorScheme.onSecondaryContainer.withValues(alpha: isUserAdded ? 0.55 : 1.0),
         ),
         padding: compact
             ? const EdgeInsets.symmetric(horizontal: 4, vertical: 0)

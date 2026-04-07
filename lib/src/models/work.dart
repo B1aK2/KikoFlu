@@ -318,20 +318,27 @@ class Tag extends Equatable {
   @JsonKey(name: 'myVote')
   final int? myVote; // 我的投票状态：0=未投票，1=支持，2=反对
 
+  @JsonKey(name: 'voteStatus')
+  final int? voteStatus; // 标签来源：1=作品默认标签，0=用户添加的标签（仅官方服务器）
+
   const Tag({
     required this.id,
     required this.name,
     this.upvote,
     this.downvote,
     this.myVote,
+    this.voteStatus,
   });
+
+  /// 是否为用户添加的标签（非默认标签）
+  bool get isUserAdded => voteStatus == 0;
 
   factory Tag.fromJson(Map<String, dynamic> json) => _$TagFromJson(json);
 
   Map<String, dynamic> toJson() => _$TagToJson(this);
 
   @override
-  List<Object?> get props => [id, name, upvote, downvote, myVote];
+  List<Object?> get props => [id, name, upvote, downvote, myVote, voteStatus];
 }
 
 @JsonSerializable()
