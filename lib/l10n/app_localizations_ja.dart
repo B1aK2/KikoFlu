@@ -2829,6 +2829,9 @@ class SJa extends S {
   String get editTextContentHint => 'テキストを編集...';
 
   @override
+  String get markButton => 'マーク';
+
+  @override
   String get bookmarkRemoved => 'ブックマークを削除しました';
 
   @override

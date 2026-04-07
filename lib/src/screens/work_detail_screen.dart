@@ -572,7 +572,7 @@ class _WorkDetailScreenState extends ConsumerState<WorkDetailScreen> {
                         children: [
                           Text(
                             ReviewProgressDialog.getProgressLabel(
-                                _currentProgress),
+                                _currentProgress, context),
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 15,

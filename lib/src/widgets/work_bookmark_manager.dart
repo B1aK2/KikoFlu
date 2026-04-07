@@ -71,12 +71,12 @@ class WorkBookmarkManager {
           if (newProgress != null && newRating != null) {
             // 同时设置了进度和评分
             final filterLabel =
-                ReviewProgressDialog.getProgressLabel(newProgress);
+                ReviewProgressDialog.getProgressLabel(newProgress, context);
             message = S.of(context).setProgressAndRating(filterLabel, newRating);
           } else if (newProgress != null) {
             // 只设置了进度
             final filterLabel =
-                ReviewProgressDialog.getProgressLabel(newProgress);
+                ReviewProgressDialog.getProgressLabel(newProgress, context);
             message = S.of(context).setProgressTo(filterLabel);
           } else if (newRating != null) {
             // 只设置了评分

@@ -2817,6 +2817,9 @@ class SZh extends S {
   String get editTextContentHint => '编辑文本内容...';
 
   @override
+  String get markButton => '标记';
+
+  @override
   String get bookmarkRemoved => '已移除标记';
 
   @override
@@ -6153,6 +6156,9 @@ class SZhHant extends SZh {
 
   @override
   String get editTextContentHint => '編輯文字內容...';
+
+  @override
+  String get markButton => '標記';
 
   @override
   String get bookmarkRemoved => '已移除標記';

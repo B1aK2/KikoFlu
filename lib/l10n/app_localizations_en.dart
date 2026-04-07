@@ -2900,6 +2900,9 @@ class SEn extends S {
   String get editTextContentHint => 'Edit text content...';
 
   @override
+  String get markButton => 'Mark';
+
+  @override
   String get bookmarkRemoved => 'Bookmark removed';
 
   @override

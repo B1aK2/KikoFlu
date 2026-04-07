@@ -5166,6 +5166,12 @@ abstract class S {
   /// **'Edit text content...'**
   String get editTextContentHint;
 
+  /// No description provided for @markButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark'**
+  String get markButton;
+
   /// No description provided for @bookmarkRemoved.
   ///
   /// In en, this message translates to:

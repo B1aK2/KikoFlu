@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/my_reviews_provider.dart';
 import '../providers/auth_provider.dart';
 import '../utils/server_utils.dart';
+import '../utils/l10n_extensions.dart';
 import 'add_to_playlist_dialog.dart';
 import '../../l10n/app_localizations.dart';
 import 'responsive_dialog.dart';
@@ -165,7 +166,7 @@ class ReviewProgressDialog {
                                           final isSelected =
                                               selectedProgress == filter.value;
                                           return RadioListTile<String>(
-                                            title: Text(filter.label),
+                                            title: Text(filter.localizedLabel(context)),
                                             value: filter.value!,
                                             groupValue: selectedProgress,
                                             onChanged: (value) {
@@ -192,7 +193,7 @@ class ReviewProgressDialog {
                                                 selectedProgress ==
                                                     filter.value;
                                             return RadioListTile<String>(
-                                              title: Text(filter.label),
+                                              title: Text(filter.localizedLabel(context)),
                                               value: filter.value!,
                                               groupValue: selectedProgress,
                                               onChanged: (value) {
@@ -397,7 +398,7 @@ class ReviewProgressDialog {
                               ? Theme.of(context).colorScheme.primary
                               : null,
                         ),
-                        title: Text(filter.label),
+                        title: Text(filter.localizedLabel(context)),
                         selected: isSelected,
                         onTap: () {
                           setState(() {
@@ -466,9 +467,9 @@ class ReviewProgressDialog {
     }
   }
 
-  /// 获取状态标签
-  static String getProgressLabel(String? value) {
-    if (value == null) return '标记';
+  /// 获取状态标签（需要 BuildContext 以支持多语言）
+  static String getProgressLabel(String? value, BuildContext context) {
+    if (value == null) return S.of(context).markButton;
     final found = [
       MyReviewFilter.marked,
       MyReviewFilter.listening,
@@ -479,7 +480,7 @@ class ReviewProgressDialog {
       (f) => f.value == value,
       orElse: () => MyReviewFilter.all,
     );
-    return found.label;
+    return found.localizedLabel(context);
   }
 
   /// 获取状态对应的图标
@@ -503,5 +504,6 @@ class ReviewProgressDialog {
   }
 
   /// @deprecated 使用 getProgressLabel 替代
-  static String getLabelForProgress(String? value) => getProgressLabel(value);
+  static String getLabelForProgress(String? value, BuildContext context) =>
+      getProgressLabel(value, context);
 }

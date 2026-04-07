@@ -2911,6 +2911,9 @@ class SRu extends S {
   String get editTextContentHint => 'Редактировать текст...';
 
   @override
+  String get markButton => 'Отметить';
+
+  @override
   String get bookmarkRemoved => 'Закладка удалена';
 
   @override
