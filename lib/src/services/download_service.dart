@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 
 import '../models/download_task.dart';
+import '../utils/file_icon_utils.dart';
 import 'cache_service.dart';
 import 'storage_service.dart';
 import 'kikoeru_api_service.dart';
@@ -810,6 +811,165 @@ class DownloadService {
     }
   }
 
+  /// 同步磁盘文件到 work_metadata.json 的 children 文件树
+  /// 确保手动添加的文件也能在离线浏览器中正确显示
+  Future<void> _syncFileTreeWithDisk(int workId, Directory workDir) async {
+    // 1. 收集磁盘上所有实际文件的相对路径
+    final diskFiles = <String, File>{};
+
+    Future<void> collectFiles(Directory dir, String relativePath) async {
+      await for (final entity in dir.list()) {
+        if (entity is File) {
+          final fileName = entity.path.split(Platform.pathSeparator).last;
+          // 跳过元数据、封面和临时下载文件
+          if (fileName == 'work_metadata.json' ||
+              fileName == 'cover.jpg' ||
+              fileName.endsWith('.downloading')) {
+            continue;
+          }
+          final fullName =
+              relativePath.isEmpty ? fileName : '$relativePath/$fileName';
+          diskFiles[fullName] = entity;
+        } else if (entity is Directory) {
+          final dirName = entity.path.split(Platform.pathSeparator).last;
+          final subPath =
+              relativePath.isEmpty ? dirName : '$relativePath/$dirName';
+          await collectFiles(entity, subPath);
+        }
+      }
+    }
+
+    await collectFiles(workDir, '');
+    if (diskFiles.isEmpty) return;
+
+    // 2. 加载现有元数据
+    final metadataFile = File('${workDir.path}/work_metadata.json');
+    Map<String, dynamic>? metadata;
+
+    if (await metadataFile.exists()) {
+      try {
+        metadata =
+            jsonDecode(await metadataFile.readAsString()) as Map<String, dynamic>;
+      } catch (e) {
+        _log.error('读取元数据失败: RJ$workId, $e', tag: 'Download');
+      }
+    }
+
+    bool metadataCreated = false;
+    if (metadata == null) {
+      // 没有任何元数据，创建基础元数据
+      metadata = {
+        'id': workId,
+        'title': 'RJ$workId',
+        'children': <dynamic>[],
+      };
+      metadataCreated = true;
+    }
+
+    // 3. 收集已有文件树中所有文件的相对路径
+    final existingChildren = (metadata['children'] as List<dynamic>?) ?? [];
+    final knownPaths = <String>{};
+
+    void collectKnownPaths(List<dynamic> items, String parentPath) {
+      for (final item in items) {
+        if (item is! Map<String, dynamic>) continue;
+        final type = item['type'] as String? ?? '';
+        final title = item['title'] as String? ?? '';
+        if (type == 'folder') {
+          final folderPath =
+              parentPath.isEmpty ? title : '$parentPath/$title';
+          final children = item['children'] as List<dynamic>?;
+          if (children != null) {
+            collectKnownPaths(children, folderPath);
+          }
+        } else {
+          final filePath =
+              parentPath.isEmpty ? title : '$parentPath/$title';
+          knownPaths.add(filePath);
+        }
+      }
+    }
+
+    collectKnownPaths(existingChildren, '');
+
+    // 4. 找出磁盘上有但文件树中没有的文件
+    final newFiles = <String, File>{};
+    for (final entry in diskFiles.entries) {
+      if (!knownPaths.contains(entry.key)) {
+        newFiles[entry.key] = entry.value;
+      }
+    }
+
+    if (newFiles.isEmpty && !metadataCreated) return;
+
+    // 5. 将新文件添加到 children 树中的正确位置
+    final mutableChildren = List<dynamic>.from(existingChildren);
+
+    for (final entry in newFiles.entries) {
+      final relativePath = entry.key;
+      final file = entry.value;
+      final parts = relativePath.split('/');
+
+      final fileType = FileIconUtils.inferFileType(parts.last);
+      final syntheticHash = 'local_${workId}_$relativePath';
+
+      int? fileSize;
+      try {
+        fileSize = await file.length();
+      } catch (_) {}
+
+      final fileEntry = <String, dynamic>{
+        'type': fileType,
+        'title': parts.last,
+        'hash': syntheticHash,
+        if (fileSize != null) 'size': fileSize,
+      };
+
+      if (parts.length == 1) {
+        // 根级别文件
+        mutableChildren.add(fileEntry);
+      } else {
+        // 嵌套文件，确保父文件夹存在
+        var currentLevel = mutableChildren;
+        for (var i = 0; i < parts.length - 1; i++) {
+          final folderName = parts[i];
+          // 查找或创建文件夹
+          Map<String, dynamic>? folder;
+          for (final item in currentLevel) {
+            if (item is Map<String, dynamic> &&
+                item['type'] == 'folder' &&
+                item['title'] == folderName) {
+              folder = item;
+              break;
+            }
+          }
+
+          if (folder == null) {
+            folder = <String, dynamic>{
+              'type': 'folder',
+              'title': folderName,
+              'children': <dynamic>[],
+            };
+            currentLevel.add(folder);
+          } else if (folder['children'] == null) {
+            folder['children'] = <dynamic>[];
+          }
+          currentLevel = folder['children'] as List<dynamic>;
+        }
+        currentLevel.add(fileEntry);
+      }
+
+      _log.info('添加手动文件到文件树: $relativePath (RJ$workId)', tag: 'Download');
+    }
+
+    if (newFiles.isNotEmpty || metadataCreated) {
+      metadata['children'] = mutableChildren;
+      await metadataFile.writeAsString(jsonEncode(metadata));
+      _log.info('已更新作品文件树: RJ$workId, 新增 ${newFiles.length} 个文件',
+          tag: 'Download');
+    }
+  }
+
   Future<void> _loadTasks() async {
     try {
       final prefs = await StorageService.getPrefs();
@@ -887,7 +1047,16 @@ class DownloadService {
       // 第二步：检查并升级旧版本文件（没有元数据的文件）
       await _upgradeOldWorkFolders(workFolders);
 
-      // 第三步：扫描硬盘上的所有文件，添加新发现的任务
+      // 第三步：同步磁盘文件到文件树（确保手动添加的文件能正确显示）
+      for (final entry in workFolders.entries) {
+        try {
+          await _syncFileTreeWithDisk(entry.key, entry.value);
+        } catch (e) {
+          _log.error('同步文件树失败 RJ${entry.key}: $e', tag: 'Download');
+        }
+      }
+
+      // 第四步：扫描硬盘上的所有文件，添加新发现的任务
       final newTasks = <DownloadTask>[];
       for (final entry in workFolders.entries) {
         final workId = entry.key;
@@ -903,8 +1072,10 @@ class DownloadService {
             if (entity is File) {
               final fileName = entity.path.split(Platform.pathSeparator).last;
 
-              // 跳过元数据和封面文件
-              if (fileName == 'work_metadata.json' || fileName == 'cover.jpg') {
+              // 跳过元数据、封面和临时下载文件
+              if (fileName == 'work_metadata.json' ||
+                  fileName == 'cover.jpg' ||
+                  fileName.endsWith('.downloading')) {
                 continue;
               }
 
@@ -962,7 +1133,7 @@ class DownloadService {
         _log.info('添加了 ${newTasks.length} 个新任务', tag: 'Download');
       }
 
-      // 第三步：为所有已完成任务更新元数据
+      // 第五步：为所有已完成任务更新元数据（包含新同步的文件树）
       for (var i = 0; i < _tasks.length; i++) {
         final task = _tasks[i];
         if (task.status == DownloadStatus.completed) {
