@@ -3,6 +3,9 @@ import 'package:file_picker/file_picker.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'storage_service.dart';
+import 'log_service.dart';
+
+final _log = LogService.instance;
 
 /// 下载路径管理服务
 class DownloadPathService {
@@ -233,7 +236,7 @@ class DownloadPathService {
                     await Directory(newPath).create(recursive: true);
                   }
                 } catch (e) {
-                  print('[DownloadPath] 复制文件失败: ${fileEntity.path}, 错误: $e');
+                  _log.error('复制文件失败: ${fileEntity.path}, 错误: $e', tag: 'DownloadPath');
                   errorCount++;
                 }
               }
@@ -241,35 +244,34 @@ class DownloadPathService {
               fileCount += folderFileCount;
               workFolderCount++;
               if (folderName == 'subtitle_library') {
-                print('[DownloadPath] 已迁移字幕库: $folderFileCount 个文件');
+                _log.info('已迁移字幕库: $folderFileCount 个文件', tag: 'DownloadPath');
               } else {
-                print(
-                    '[DownloadPath] 已迁移作品文件夹 $folderName: $folderFileCount 个文件');
+                _log.info('已迁移作品文件夹 $folderName: $folderFileCount 个文件', tag: 'DownloadPath');
               }
 
               // 迁移成功后删除原文件夹
               try {
                 await entity.delete(recursive: true);
               } catch (e) {
-                print('[DownloadPath] 删除原文件夹失败: $folderName, 错误: $e');
+                _log.error('删除原文件夹失败: $folderName, 错误: $e', tag: 'DownloadPath');
                 errorCount++;
               }
             } catch (e) {
-              print('[DownloadPath] 迁移文件夹失败: $folderName, 错误: $e');
+              _log.error('迁移文件夹失败: $folderName, 错误: $e', tag: 'DownloadPath');
               errorCount++;
             }
           } else {
             // 跳过非数字命名且不是字幕库的文件夹（可能是用户的其他文件）
             skippedCount++;
             skippedItems.add(folderName);
-            print('[DownloadPath] 跳过文件夹: $folderName');
+            _log.debug('跳过文件夹: $folderName', tag: 'DownloadPath');
           }
         } else if (entity is File) {
           // 跳过下载目录根目录下的文件（可能是用户的其他文件）
           final fileName = entity.path.split(Platform.pathSeparator).last;
           skippedCount++;
           skippedItems.add(fileName);
-          print('[DownloadPath] 跳过根目录文件: $fileName');
+          _log.debug('跳过根目录文件: $fileName', tag: 'DownloadPath');
         }
       }
 
@@ -282,16 +284,16 @@ class DownloadPathService {
         if (isOldDirEmpty) {
           try {
             await oldDir.delete(recursive: false);
-            print('[DownloadPath] 已删除空的旧目录');
+            _log.info('已删除空的旧目录', tag: 'DownloadPath');
           } catch (e) {
-            print('[DownloadPath] 删除空目录失败: $e');
+            _log.error('删除空目录失败: $e', tag: 'DownloadPath');
             // 不影响迁移结果
           }
         } else {
-          print('[DownloadPath] 旧目录中还有 ${remainingEntities.length} 个项目，保留目录');
+          _log.info('旧目录中还有 ${remainingEntities.length} 个项目，保留目录', tag: 'DownloadPath');
         }
       } catch (e) {
-        print('[DownloadPath] 检查旧目录是否为空时出错: $e');
+        _log.error('检查旧目录是否为空时出错: $e', tag: 'DownloadPath');
       }
 
       String resultMessage = '迁移完成: $workFolderCount 个作品文件夹, $fileCount 个文件';

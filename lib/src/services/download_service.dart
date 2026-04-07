@@ -8,6 +8,9 @@ import 'cache_service.dart';
 import 'storage_service.dart';
 import 'kikoeru_api_service.dart';
 import 'download_path_service.dart';
+import 'log_service.dart';
+
+final _log = LogService.instance;
 
 class DownloadService {
   static DownloadService? _instance;
@@ -55,9 +58,9 @@ class DownloadService {
     // 启动时从硬盘完全同步任务（静默执行）
     try {
       await reloadMetadataFromDisk();
-      print('[Download] 启动时同步完成');
+      _log.info('启动时同步完成', tag: 'Download');
     } catch (e) {
-      print('[Download] 启动时同步失败: $e');
+      _log.error('启动时同步失败: $e', tag: 'Download');
       // 同步失败则保持当前状态，等待用户手动刷新
     }
   }
@@ -96,7 +99,7 @@ class DownloadService {
       await _dio.download(coverUrl, coverFile.path);
       return coverFile.path;
     } catch (e) {
-      print('[Download] 下载封面图片失败: $e');
+      _log.error('下载封面图片失败: $e', tag: 'Download');
       return null;
     }
   }
@@ -119,7 +122,7 @@ class DownloadService {
       final jsonStr = jsonEncode(metadata);
       await metadataFile.writeAsString(jsonStr);
     } catch (e) {
-      print('[Download] 保存作品元数据失败: $e');
+      _log.error('保存作品元数据失败: $e', tag: 'Download');
     }
   }
 
@@ -141,14 +144,14 @@ class DownloadService {
             metadata['localCoverPath'] = 'cover.jpg';
             // 保存更新后的元数据
             await metadataFile.writeAsString(jsonEncode(metadata));
-            print('[Download] 已迁移作品 $workId 的封面路径为相对路径');
+            _log.info('已迁移作品 $workId 的封面路径为相对路径', tag: 'Download');
           }
         }
 
         return metadata;
       }
     } catch (e) {
-      print('[Download] 读取作品元数据失败: $e');
+      _log.error('读取作品元数据失败: $e', tag: 'Download');
     }
     return null;
   }
@@ -304,6 +307,10 @@ class DownloadService {
         .where((t) => t.status == DownloadStatus.pending)
         .toList();
 
+    if (pendingTasks.isNotEmpty) {
+      _log.debug('调度下载队列: ${pendingTasks.length} 个等待中, $_activeDownloadCount/$_maxConcurrentDownloads 个进行中', tag: 'Download');
+    }
+
     for (final task in pendingTasks) {
       if (_activeDownloadCount >= _maxConcurrentDownloads) break;
       _activeDownloadCount++;
@@ -320,6 +327,8 @@ class DownloadService {
       return;
     }
 
+    _log.info('开始下载: ${task.fileName} (workId: ${task.workId})', tag: 'Download');
+
     _updateTask(task.copyWith(status: DownloadStatus.downloading),
         immediate: true);
 
@@ -329,6 +338,8 @@ class DownloadService {
     final tempFilePath = '$filePath.downloading'; // 临时文件路径
     final file = File(filePath);
     final tempFile = File(tempFilePath);
+
+    _log.debug('下载路径: filePath=$filePath, tempFile=$tempFilePath', tag: 'Download');
 
     // 确保父目录存在
     await file.parent.create(recursive: true);
@@ -348,7 +359,7 @@ class DownloadService {
 
         if (cachedPath != null) {
           // 缓存存在,直接复制文件
-          print('[Download] 从缓存复制文件: $cachedPath -> $filePath');
+          _log.info('从缓存复制文件: $cachedPath -> $filePath', tag: 'Download');
           final cachedFile = File(cachedPath);
           if (await cachedFile.exists()) {
             await cachedFile.copy(filePath);
@@ -370,6 +381,9 @@ class DownloadService {
       // 节流：限制进度更新频率
       int lastUpdateTime = 0;
       const updateInterval = 500; // 500ms 更新一次
+      int? firstReportedTotal; // 记录首次收到的total，用于诊断进度跳变
+
+      _log.info('开始网络下载: ${task.fileName}, url=${task.downloadUrl}', tag: 'Download');
 
       // 下载到临时文件，完成后再重命名
       await _dio.download(
@@ -378,6 +392,23 @@ class DownloadService {
         cancelToken: cancelToken,
         onReceiveProgress: (received, total) {
           if (total != -1) {
+            // 诊断：检测服务器报告的总大小是否变化（可能导致进度条跳变）
+            if (firstReportedTotal == null) {
+              firstReportedTotal = total;
+              if (task.totalBytes != null && task.totalBytes! > 0 && task.totalBytes != total) {
+                _log.warning(
+                  '服务器报告的文件大小($total)与任务记录的大小(${task.totalBytes})不一致: ${task.fileName}',
+                  tag: 'Download',
+                );
+              }
+            } else if (firstReportedTotal != total) {
+              _log.warning(
+                '下载过程中文件总大小发生变化: $firstReportedTotal -> $total (${task.fileName})',
+                tag: 'Download',
+              );
+              firstReportedTotal = total;
+            }
+
             final now = DateTime.now().millisecondsSinceEpoch;
             // 只在间隔足够时才更新，避免过于频繁的更新
             if (now - lastUpdateTime > updateInterval || received == total) {
@@ -394,6 +425,8 @@ class DownloadService {
       // 下载完成，重命名临时文件为最终文件
       await tempFile.rename(filePath);
 
+      _log.info('下载完成: ${task.fileName}', tag: 'Download');
+
       final completedTask = task.copyWith(
         status: DownloadStatus.completed,
         completedAt: DateTime.now(),
@@ -402,9 +435,35 @@ class DownloadService {
       _cancelTokens.remove(task.id);
     } catch (e) {
       if (e is DioException && e.type == DioExceptionType.cancel) {
+        _log.info('下载已取消: ${task.fileName}', tag: 'Download');
         _updateTask(task.copyWith(status: DownloadStatus.paused),
             immediate: true);
+      } else if (e is PathNotFoundException) {
+        _log.error('路径不存在: ${task.fileName}, filePath=$filePath, error=$e', tag: 'Download');
+        _updateTask(
+            task.copyWith(
+              status: DownloadStatus.failed,
+              error: e.toString(),
+            ),
+            immediate: true);
+      } else if (e is FileSystemException) {
+        _log.error('文件系统错误: ${task.fileName}, filePath=$filePath, error=$e', tag: 'Download');
+        _updateTask(
+            task.copyWith(
+              status: DownloadStatus.failed,
+              error: e.toString(),
+            ),
+            immediate: true);
+      } else if (e is DioException) {
+        _log.error('网络错误: ${task.fileName}, type=${e.type}, message=${e.message}, url=${task.downloadUrl}', tag: 'Download');
+        _updateTask(
+            task.copyWith(
+              status: DownloadStatus.failed,
+              error: e.toString(),
+            ),
+            immediate: true);
       } else {
+        _log.error('下载失败: ${task.fileName}, error=$e', tag: 'Download');
         _updateTask(
             task.copyWith(
               status: DownloadStatus.failed,
@@ -465,10 +524,10 @@ class DownloadService {
         final dir = Directory(workDir);
         if (await dir.exists()) {
           await dir.delete(recursive: true);
-          print('[Download] 已删除作品文件夹: $workDir');
+          _log.info('已删除作品文件夹: $workDir', tag: 'Download');
         }
       } catch (e) {
-        print('[Download] 删除作品文件夹失败: $e');
+        _log.error('删除作品文件夹失败: $e', tag: 'Download');
       }
     }
 
@@ -489,7 +548,7 @@ class DownloadService {
 
       // 删除文件
       await file.delete();
-      print('[Download] 已删除文件: $relativePath');
+      _log.info('已删除文件: $relativePath', tag: 'Download');
 
       // 清理空文件夹
       await _cleanEmptyDirectories(file.parent, workDir);
@@ -512,7 +571,7 @@ class DownloadService {
 
         if (!hasOtherFiles) {
           await workDirObj.delete(recursive: true);
-          print('[Download] 作品文件夹已空，已删除: $workDir');
+          _log.info('作品文件夹已空，已删除: $workDir', tag: 'Download');
           // 删除所有相关任务
           _tasks.removeWhere((t) => t.workId == workId);
         }
@@ -521,7 +580,7 @@ class DownloadService {
       await _saveTasks();
       _tasksController.add(List.from(_tasks));
     } catch (e) {
-      print('[Download] 删除文件失败: $e');
+      _log.error('删除文件失败: $e', tag: 'Download');
       rethrow;
     }
   }
@@ -537,14 +596,14 @@ class DownloadService {
       // 检查目录是否为空
       final contents = await dir.list().toList();
       if (contents.isEmpty) {
-        print('[Download] 清理空文件夹: ${dir.path}');
+        _log.debug('清理空文件夹: ${dir.path}', tag: 'Download');
         await dir.delete();
 
         // 递归检查父目录
         await _cleanEmptyDirectories(dir.parent, workDir);
       }
     } catch (e) {
-      print('[Download] 清理空文件夹失败: $e');
+      _log.error('清理空文件夹失败: $e', tag: 'Download');
     }
   }
 
@@ -619,7 +678,7 @@ class DownloadService {
         continue; // 已有元数据，跳过
       }
 
-      print('[Download] 发现旧版本作品文件夹，尝试升级: RJ$workId');
+      _log.info('发现旧版本作品文件夹，尝试升级: RJ$workId', tag: 'Download');
 
       try {
         // 创建 API 服务实例尝试获取元数据
@@ -637,7 +696,7 @@ class DownloadService {
         // 保存元数据（使用相对路径）
         workData['localCoverPath'] = 'cover.jpg';
         await metadataFile.writeAsString(jsonEncode(workData));
-        print('[Download] 已保存作品元数据: RJ$workId');
+        _log.info('已保存作品元数据: RJ$workId', tag: 'Download');
 
         // 下载封面（使用高清封面 URL）
         final host = StorageService.getString('server_host') ?? '';
@@ -654,15 +713,15 @@ class DownloadService {
               : '$normalizedHost/api/cover/$workId';
 
           await _downloadCoverImage(workId, coverUrl);
-          print('[Download] 已下载作品封面: RJ$workId');
+          _log.info('已下载作品封面: RJ$workId', tag: 'Download');
         }
 
         // 尝试组织文件树结构
         await _organizeFilesIntoTree(workId, workDir, tracks);
 
-        print('[Download] 作品升级成功: RJ$workId');
+        _log.info('作品升级成功: RJ$workId', tag: 'Download');
       } catch (e) {
-        print('[Download] 升级作品失败 RJ$workId: $e');
+        _log.error('升级作品失败 RJ$workId: $e', tag: 'Download');
         // 升级失败不影响继续运行，保持原有文件不变
       }
     }
@@ -730,20 +789,20 @@ class DownloadService {
             // 移动文件
             try {
               await entity.rename(targetFile.path);
-              print('[Download] 文件已重新组织: $fileName -> $targetPath');
+              _log.info('文件已重新组织: $fileName -> $targetPath', tag: 'Download');
             } catch (e) {
               // 如果 rename 失败（跨文件系统），尝试复制后删除
               await entity.copy(targetFile.path);
               await entity.delete();
-              print('[Download] 文件已复制并重新组织: $fileName -> $targetPath');
+              _log.info('文件已复制并重新组织: $fileName -> $targetPath', tag: 'Download');
             }
           }
         }
       }
 
-      print('[Download] 文件树结构组织完成: RJ$workId');
+      _log.info('文件树结构组织完成: RJ$workId', tag: 'Download');
     } catch (e) {
-      print('[Download] 组织文件树失败 RJ$workId: $e');
+      _log.error('组织文件树失败 RJ$workId: $e', tag: 'Download');
       // 失败不影响继续运行
     }
   }
@@ -760,7 +819,7 @@ class DownloadService {
         );
       }
     } catch (e) {
-      print('[Download] 加载下载任务失败: $e');
+      _log.error('加载下载任务失败: $e', tag: 'Download');
     }
   }
 
@@ -770,12 +829,12 @@ class DownloadService {
   /// 用于手动刷新，确保下载完成界面与硬盘文件完全一致
   Future<void> reloadMetadataFromDisk() async {
     try {
-      print('[Download] 开始从硬盘同步任务...');
+      _log.info('开始从硬盘同步任务...', tag: 'Download');
 
       // 获取下载目录
       final downloadDir = await _getDownloadDirectory();
       if (!await downloadDir.exists()) {
-        print('[Download] 下载目录不存在，清空所有已完成任务');
+        _log.warning('下载目录不存在，清空所有已完成任务', tag: 'Download');
         _tasks.removeWhere((t) => t.status == DownloadStatus.completed);
         _tasksController.add(List.from(_tasks));
         await _saveTasks();
@@ -794,7 +853,7 @@ class DownloadService {
         }
       }
 
-      print('[Download] 发现 ${workFolders.length} 个作品文件夹');
+      _log.info('发现 ${workFolders.length} 个作品文件夹', tag: 'Download');
 
       // 第一步：删除硬盘上不存在的已完成任务
       final tasksToRemove = <String>[];
@@ -804,13 +863,13 @@ class DownloadService {
           if (workDir == null) {
             // 作品文件夹不存在，删除任务
             tasksToRemove.add(task.id);
-            print('[Download] 作品文件夹不存在，删除任务: ${task.workTitle}');
+            _log.warning('作品文件夹不存在，删除任务: ${task.workTitle}', tag: 'Download');
           } else {
             // 检查文件是否存在
             final file = File('${workDir.path}/${task.fileName}');
             if (!await file.exists()) {
               tasksToRemove.add(task.id);
-              print('[Download] 文件不存在，删除任务: ${task.fileName}');
+              _log.warning('文件不存在，删除任务: ${task.fileName}', tag: 'Download');
             }
           }
         }
@@ -819,7 +878,7 @@ class DownloadService {
       // 执行删除
       if (tasksToRemove.isNotEmpty) {
         _tasks.removeWhere((t) => tasksToRemove.contains(t.id));
-        print('[Download] 删除了 ${tasksToRemove.length} 个不存在的任务');
+        _log.info('删除了 ${tasksToRemove.length} 个不存在的任务', tag: 'Download');
       }
 
       // 第二步：检查并升级旧版本文件（没有元数据的文件）
@@ -879,7 +938,7 @@ class DownloadService {
                   workMetadata: metadata,
                 );
                 newTasks.add(newTask);
-                print('[Download] 发现新文件: $fullFileName (${workTitle})');
+                _log.info('发现新文件: $fullFileName ($workTitle)', tag: 'Download');
               }
             } else if (entity is Directory) {
               // 递归扫描子目录
@@ -897,7 +956,7 @@ class DownloadService {
       // 添加新任务
       if (newTasks.isNotEmpty) {
         _tasks.addAll(newTasks);
-        print('[Download] 添加了 ${newTasks.length} 个新任务');
+        _log.info('添加了 ${newTasks.length} 个新任务', tag: 'Download');
       }
 
       // 第三步：为所有已完成任务更新元数据
@@ -915,10 +974,9 @@ class DownloadService {
       _tasksController.add(List.from(_tasks));
       await _saveTasks();
 
-      print(
-          '[Download] 同步完成：删除 ${tasksToRemove.length} 个，新增 ${newTasks.length} 个');
+      _log.info('同步完成：删除 ${tasksToRemove.length} 个，新增 ${newTasks.length} 个', tag: 'Download');
     } catch (e) {
-      print('[Download] 从硬盘同步任务失败: $e');
+      _log.error('从硬盘同步任务失败: $e', tag: 'Download');
       rethrow;
     }
   }
@@ -929,7 +987,7 @@ class DownloadService {
       final tasksJson = jsonEncode(_tasks.map((t) => t.toJson()).toList());
       await prefs.setString(_tasksKey, tasksJson);
     } catch (e) {
-      print('[Download] 保存下载任务失败: $e');
+      _log.error('保存下载任务失败: $e', tag: 'Download');
     }
   }
 
