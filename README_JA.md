@@ -80,8 +80,6 @@ iOS ユーザーは AltStore または SideStore にソースを追加して、K
 
 **ソース URL：** `https://raw.githubusercontent.com/pa-jesusf/KikoFlu/main/altstore-source.json`
 
-ワンクリック追加：[AltStore に追加](altstore://source?url=https://raw.githubusercontent.com/pa-jesusf/KikoFlu/main/altstore-source.json) | [SideStore に追加](sidestore://source?url=https://raw.githubusercontent.com/pa-jesusf/KikoFlu/main/altstore-source.json)
-
 ---
 
 ## ソースからビルド

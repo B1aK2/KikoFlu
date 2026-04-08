@@ -80,8 +80,6 @@ iOS 用户可通过 AltStore 或 SideStore 添加软件源来安装和更新 Kik
 
 **源地址：** `https://raw.githubusercontent.com/pa-jesusf/KikoFlu/main/altstore-source.json`
 
-点击一键添加：[添加到 AltStore](altstore://source?url=https://raw.githubusercontent.com/pa-jesusf/KikoFlu/main/altstore-source.json) | [添加到 SideStore](sidestore://source?url=https://raw.githubusercontent.com/pa-jesusf/KikoFlu/main/altstore-source.json)
-
 ---
 
 ## 源码构建

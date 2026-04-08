@@ -80,8 +80,6 @@ iOS users can add the KikoFlu source to AltStore or SideStore for easy installat
 
 **Source URL:** `https://raw.githubusercontent.com/pa-jesusf/KikoFlu/main/altstore-source.json`
 
-One-click add: [Add to AltStore](altstore://source?url=https://raw.githubusercontent.com/pa-jesusf/KikoFlu/main/altstore-source.json) | [Add to SideStore](sidestore://source?url=https://raw.githubusercontent.com/pa-jesusf/KikoFlu/main/altstore-source.json)
-
 ---
 
 ## Build from Source
