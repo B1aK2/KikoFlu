@@ -29,11 +29,13 @@ class _UserSwitchScreenState extends ConsumerState<UserSwitchScreen> {
     setState(() => _isLoading = true);
     try {
       final users = await ref.read(authProvider.notifier).getSavedUsers();
+      if (!mounted) return;
       setState(() {
         _savedUsers = users;
         _isLoading = false;
       });
     } catch (e) {
+      if (!mounted) return;
       setState(() => _isLoading = false);
     }
   }

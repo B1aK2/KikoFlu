@@ -29,6 +29,7 @@ class _AccountManagementScreenState
   Future<void> _loadAccounts() async {
     setState(() => _isLoading = true);
     final accounts = await AccountDatabase.instance.getAllAccounts();
+    if (!mounted) return;
     setState(() {
       _accounts = accounts;
       _isLoading = false;

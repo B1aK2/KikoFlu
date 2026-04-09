@@ -198,7 +198,9 @@ class _VolumeControlState extends State<VolumeControl> {
           _showOverlay();
         },
         onExit: (_) {
-          setState(() => _isHovering = false);
+          if (mounted) {
+            setState(() => _isHovering = false);
+          }
           // 延迟检查，给用户时间移动到滑动条上
           Future.delayed(const Duration(milliseconds: 100), () {
             if (!_isHovering && mounted) {

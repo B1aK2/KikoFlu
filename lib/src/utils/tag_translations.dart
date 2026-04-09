@@ -208,14 +208,19 @@ const String _encodedTagData =
 late final Map<int, Map<String, String>> tagTranslations = _decodeTagData();
 
 Map<int, Map<String, String>> _decodeTagData() {
-  final bytes = base64Decode(_encodedTagData);
-  final decompressed = zlib.decode(bytes);
-  final jsonStr = utf8.decode(decompressed);
-  final Map<String, dynamic> raw = jsonDecode(jsonStr);
-  return raw.map((key, value) => MapEntry(
-    int.parse(key),
-    (value as Map<String, dynamic>).map((k, v) => MapEntry(k, v as String)),
-  ));
+  try {
+    final bytes = base64Decode(_encodedTagData);
+    final decompressed = zlib.decode(bytes);
+    final jsonStr = utf8.decode(decompressed);
+    final Map<String, dynamic> raw = jsonDecode(jsonStr);
+    return raw.map((key, value) => MapEntry(
+      int.parse(key),
+      (value as Map<String, dynamic>).map((k, v) => MapEntry(k, v as String)),
+    ));
+  } catch (e) {
+    print('Failed to decode tag translations: $e');
+    return {};
+  }
 }
 
 /// Reverse lookup: tag name (any language) -> tag_id

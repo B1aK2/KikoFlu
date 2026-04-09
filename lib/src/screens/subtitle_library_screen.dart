@@ -61,6 +61,7 @@ class _SubtitleLibraryScreenState extends ConsumerState<SubtitleLibraryScreen> {
 
   Future<void> _initRootPath() async {
     final dir = await SubtitleLibraryService.getSubtitleLibraryDirectory();
+    if (!mounted) return;
     setState(() {
       _rootPath = dir.path;
       _currentPath = dir.path;

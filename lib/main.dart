@@ -197,10 +197,16 @@ void main(List<String> args) async {
   setupLogCapture();
 
   if (args.firstOrNull == 'multi_window') {
-    final windowId = args[1];
-    final argument = args[2].isEmpty
-        ? const <String, dynamic>{}
-        : jsonDecode(args[2]) as Map<String, dynamic>;
+    final windowId = args.length > 1 ? args[1] : '0';
+    Map<String, dynamic> argument;
+    try {
+      argument = (args.length > 2 && args[2].isNotEmpty)
+          ? jsonDecode(args[2]) as Map<String, dynamic>
+          : const <String, dynamic>{};
+    } catch (e) {
+      print('[MultiWindow] Failed to parse arguments: $e');
+      argument = const <String, dynamic>{};
+    }
 
     // Initialize window manager for the new window
     await windowManager.ensureInitialized();

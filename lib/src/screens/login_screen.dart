@@ -149,7 +149,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       }
     }
 
-    setState(() => _isLoading = false);
+    if (mounted) {
+      setState(() => _isLoading = false);
+    }
   }
 
   // 游客登录
@@ -224,7 +226,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       }
     }
 
-    setState(() => _isLoading = false);
+    if (mounted) {
+      setState(() => _isLoading = false);
+    }
   }
 
   void _toggleMode() {

@@ -45,11 +45,13 @@ class _DownloadPathSettingsScreenState
     try {
       final current = await DownloadPathService.getDownloadDirectory();
 
+      if (!mounted) return;
       setState(() {
         _currentPath = current.path;
         _isLoading = false;
       });
     } catch (e) {
+      if (!mounted) return;
       setState(() => _isLoading = false);
       if (mounted) {
         _showSnackBar(S.of(context).loadPathFailedWithError('$e'), isError: true);

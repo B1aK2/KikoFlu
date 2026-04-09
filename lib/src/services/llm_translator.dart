@@ -50,8 +50,10 @@ class LLMTranslator {
         if (data != null &&
             data['choices'] != null &&
             data['choices'].isNotEmpty) {
-          final content = data['choices'][0]['message']['content'];
-          return content?.trim() ?? text;
+          final choice = data['choices'][0];
+          final message = choice is Map ? choice['message'] : null;
+          final content = message is Map ? message['content'] : null;
+          return content?.toString().trim() ?? text;
         }
       }
       return text;
