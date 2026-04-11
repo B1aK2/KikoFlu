@@ -9,6 +9,7 @@ import 'package:smtc_windows/smtc_windows.dart';
 import '../models/audio_track.dart';
 import 'cache_service.dart';
 import 'caching_stream_audio_source.dart';
+import 'playback_history_service.dart';
 import '../utils/image_blur_util.dart';
 
 class AudioPlayerService {
@@ -889,13 +890,25 @@ class _AudioPlayerHandler extends BaseAudioHandler with SeekHandler {
   Future<void> play() => _service.play();
 
   @override
-  Future<void> pause() => _service.pause();
+  Future<void> pause() async {
+    await _service.pause();
+    // 系统通知栏/锁屏暂停时也要立即落盘历史
+    PlaybackHistoryService.instance.onPaused();
+  }
 
   @override
-  Future<void> stop() => _service.stop();
+  Future<void> stop() async {
+    await _service.stop();
+    // 系统通知栏停止时立即落盘历史
+    PlaybackHistoryService.instance.onStopped();
+  }
 
   @override
-  Future<void> seek(Duration position) => _service.seek(position);
+  Future<void> seek(Duration position) async {
+    await _service.seek(position);
+    // 系统通知栏/锁屏 seek 时立即落盘历史
+    PlaybackHistoryService.instance.onSeekCommitted(position);
+  }
 
   @override
   Future<void> skipToNext() => _service.skipToNext();
