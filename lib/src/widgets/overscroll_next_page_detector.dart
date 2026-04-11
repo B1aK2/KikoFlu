@@ -107,6 +107,9 @@ class _OverscrollNextPageDetectorState
     }
 
     if (notification is ScrollStartNotification) {
+      if (_overscroll > 0 || _isTriggered) {
+        _resetOverscroll();
+      }
       _isUserDragging = notification.dragDetails != null;
       return false;
     }
@@ -124,14 +127,21 @@ class _OverscrollNextPageDetectorState
         );
       }
     } else if (notification is ScrollUpdateNotification) {
-      if (notification.dragDetails != null) {
+      final isDraggingUpdate = notification.dragDetails != null;
+
+      if (isDraggingUpdate) {
         _isUserDragging = true;
+      } else if (_isUserDragging) {
+        // Finger released. Keep the current trigger state armed until
+        // ScrollEndNotification arrives, otherwise the elastic bounce-back
+        // phase will clear the pending next-page action prematurely.
+        _isUserDragging = false;
       }
 
       final bottomOverscroll = _bottomOverscroll(notification.metrics);
-      if (_isUserDragging && bottomOverscroll > 0) {
+      if (isDraggingUpdate && bottomOverscroll > 0) {
         _updateOverscroll(bottomOverscroll.clamp(0.0, 200.0));
-      } else if (_overscroll > 0 && bottomOverscroll <= 0) {
+      } else if (isDraggingUpdate && _overscroll > 0 && bottomOverscroll <= 0) {
         _resetOverscroll(keepDraggingState: true);
       }
     } else if (notification is ScrollEndNotification) {
