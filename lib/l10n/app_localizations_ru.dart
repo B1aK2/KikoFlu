@@ -145,7 +145,7 @@ class SRu extends S {
   String get translationSourceLlm => 'LLM Переводчик';
 
   @override
-  String get progressMarked => 'Отмечено';
+  String get progressMarked => 'Хочу послушать';
 
   @override
   String get progressListening => 'Слушаю';
