@@ -32,6 +32,7 @@ class _OverscrollNextPageDetectorState
     extends State<OverscrollNextPageDetector> {
   double _overscroll = 0;
   bool _isTriggered = false;
+  bool _isUserDragging = false;
 
   @override
   Widget build(BuildContext context) {
@@ -94,42 +95,92 @@ class _OverscrollNextPageDetectorState
   }
 
   bool _handleScrollNotification(ScrollNotification notification) {
-    if (!widget.hasNextPage || widget.isLoading) return false;
+    if (!widget.hasNextPage || widget.isLoading) {
+      if (_overscroll > 0 || _isTriggered || _isUserDragging) {
+        _resetOverscroll();
+      }
+      return false;
+    }
+
+    if (notification.depth != 0) {
+      return false;
+    }
+
+    if (notification is ScrollStartNotification) {
+      _isUserDragging = notification.dragDetails != null;
+      return false;
+    }
 
     if (notification is OverscrollNotification) {
-      if (notification.overscroll > 0) {
-        // Overscroll at the bottom
-        setState(() {
-          _overscroll += notification.overscroll / 2; // Dampen the effect
-          if (_overscroll > widget.triggerThreshold) {
-            _isTriggered = true;
-          }
-        });
+      if (notification.dragDetails != null) {
+        _isUserDragging = true;
+      }
+
+      if (_isUserDragging &&
+          notification.overscroll > 0 &&
+          _isAtBottom(notification.metrics)) {
+        _updateOverscroll(
+          (_overscroll + notification.overscroll / 2).clamp(0.0, 200.0),
+        );
       }
     } else if (notification is ScrollUpdateNotification) {
-      // Handle scroll back when overscrolled
-      if (_overscroll > 0 && notification.scrollDelta != null) {
-        // If scrolling back up (delta < 0), reduce overscroll
-        // Note: ScrollUpdateNotification doesn't always report delta correctly during overscroll on all platforms
-        // But usually if user drags back, we get updates.
-        // Actually, for ClampingScrollPhysics, we might not get OverscrollNotification if we are just holding it?
-        // Let's rely on OverscrollNotification for accumulation.
-        // But we need to reduce it if user scrolls back.
+      if (notification.dragDetails != null) {
+        _isUserDragging = true;
+      }
 
-        // If we are overscrolled, and user drags down (scrollDelta < 0), we should reduce _overscroll.
-        // However, notification.scrollDelta might be 0 if it's just overscroll update?
+      final bottomOverscroll = _bottomOverscroll(notification.metrics);
+      if (_isUserDragging && bottomOverscroll > 0) {
+        _updateOverscroll(bottomOverscroll.clamp(0.0, 200.0));
+      } else if (_overscroll > 0 && bottomOverscroll <= 0) {
+        _resetOverscroll(keepDraggingState: true);
       }
     } else if (notification is ScrollEndNotification) {
-      if (_isTriggered) {
+      final shouldTrigger = _isTriggered;
+      _resetOverscroll();
+      if (shouldTrigger) {
         widget.onNextPage?.call();
       }
-      // Reset
-      setState(() {
-        _overscroll = 0;
-        _isTriggered = false;
-      });
     }
 
     return false;
+  }
+
+  bool _isAtBottom(ScrollMetrics metrics) {
+    return metrics.extentAfter == 0 || metrics.pixels >= metrics.maxScrollExtent;
+  }
+
+  double _bottomOverscroll(ScrollMetrics metrics) {
+    if (metrics.pixels <= metrics.maxScrollExtent) {
+      return 0;
+    }
+    return metrics.pixels - metrics.maxScrollExtent;
+  }
+
+  void _updateOverscroll(double value) {
+    final clamped = value.clamp(0.0, 200.0);
+    final triggered = clamped >= widget.triggerThreshold;
+
+    if (_overscroll == clamped && _isTriggered == triggered) {
+      return;
+    }
+
+    setState(() {
+      _overscroll = clamped;
+      _isTriggered = triggered;
+    });
+  }
+
+  void _resetOverscroll({bool keepDraggingState = false}) {
+    if (_overscroll == 0 && !_isTriggered && (_isUserDragging == keepDraggingState)) {
+      return;
+    }
+
+    setState(() {
+      _overscroll = 0;
+      _isTriggered = false;
+      if (!keepDraggingState) {
+        _isUserDragging = false;
+      }
+    });
   }
 }
