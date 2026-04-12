@@ -78,6 +78,9 @@ class SZh extends S {
   String get sortRelease => '发布日期';
 
   @override
+  String get sortCreateAt => '添加日期';
+
+  @override
   String get sortCreateDate => '收录日期';
 
   @override
@@ -178,6 +181,9 @@ class SZh extends S {
 
   @override
   String get serverAddress => '服务器地址';
+
+  @override
+  String get serverCookie => '服务器Cookie';
 
   @override
   String get login => '登录';
@@ -3437,6 +3443,9 @@ class SZhHant extends SZh {
   String get sortRelease => '發布日期';
 
   @override
+  String get sortCreateAt => '添加日期';
+
+  @override
   String get sortCreateDate => '收錄日期';
 
   @override
@@ -3537,6 +3546,9 @@ class SZhHant extends SZh {
 
   @override
   String get serverAddress => '伺服器位址';
+
+  @override
+  String get serverCookie => '伺服器Cookie';
 
   @override
   String get login => '登入';

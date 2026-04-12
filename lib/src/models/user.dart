@@ -35,6 +35,9 @@ class User extends Equatable {
   @HiveField(9)
   final String? recommenderUuid;
 
+  @HiveField(10)
+  final String? serverCookie;
+
   const User({
     this.id,
     required this.name,
@@ -46,6 +49,7 @@ class User extends Equatable {
     this.group,
     this.email,
     this.recommenderUuid,
+    this.serverCookie,
   });
 
   factory User.fromJson(Map<String, dynamic> json) {
@@ -65,6 +69,7 @@ class User extends Equatable {
       lastUpdateTime: json['lastUpdateTime'] != null
           ? DateTime.parse(json['lastUpdateTime'] as String)
           : null,
+      serverCookie: json['serverCookie'] as String?,
     );
   }
   Map<String, dynamic> toJson() {
@@ -79,6 +84,7 @@ class User extends Equatable {
       'group': group,
       'email': email,
       'recommenderUuid': recommenderUuid,
+      'serverCookie': serverCookie,
     };
   }
 
@@ -93,6 +99,7 @@ class User extends Equatable {
     String? group,
     String? email,
     String? recommenderUuid,
+    String? serverCookie,
   }) {
     return User(
       id: id ?? this.id,
@@ -105,6 +112,7 @@ class User extends Equatable {
       group: group ?? this.group,
       email: email ?? this.email,
       recommenderUuid: recommenderUuid ?? this.recommenderUuid,
+      serverCookie: serverCookie ?? this.serverCookie,
     );
   }
 
@@ -128,6 +136,7 @@ class User extends Equatable {
         loggedIn,
         group,
         email,
-        recommenderUuid
+        recommenderUuid,
+        serverCookie,
       ];
 }

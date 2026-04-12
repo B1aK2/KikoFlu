@@ -79,6 +79,9 @@ class SRu extends S {
   String get sortRelease => 'Дата выхода';
 
   @override
+  String get sortCreateAt => 'Дата добавления';
+
+  @override
   String get sortCreateDate => 'Дата каталога';
 
   @override
@@ -179,6 +182,9 @@ class SRu extends S {
 
   @override
   String get serverAddress => 'Адрес сервера';
+
+  @override
+  String get serverCookie => 'Cookie сервера';
 
   @override
   String get login => 'Войти';

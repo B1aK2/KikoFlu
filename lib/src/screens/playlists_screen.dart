@@ -85,7 +85,9 @@ class _PlaylistsScreenState extends ConsumerState<PlaylistsScreen>
                       child: Row(
                         children: [
                           Text(
-                            isCreateMode ? S.of(context).createPlaylist : S.of(context).addPlaylist,
+                            isCreateMode
+                                ? S.of(context).createPlaylist
+                                : S.of(context).addPlaylist,
                             style: Theme.of(context).textTheme.titleMedium,
                           ),
                         ],
@@ -148,13 +150,15 @@ class _PlaylistsScreenState extends ConsumerState<PlaylistsScreen>
                                     labelText: S.of(context).privacySetting,
                                     border: const OutlineInputBorder(),
                                     prefixIcon: const Icon(Icons.lock_outline),
-                                    helperText: selectedPrivacy.localizedDescription(context),
+                                    helperText: selectedPrivacy
+                                        .localizedDescription(context),
                                     helperMaxLines: 2,
                                   ),
                                   items: PlaylistPrivacy.values.map((privacy) {
                                     return DropdownMenuItem<PlaylistPrivacy>(
                                       value: privacy,
-                                      child: Text(privacy.localizedLabel(context)),
+                                      child:
+                                          Text(privacy.localizedLabel(context)),
                                     );
                                   }).toList(),
                                   onChanged: (value) {
@@ -171,7 +175,8 @@ class _PlaylistsScreenState extends ConsumerState<PlaylistsScreen>
                                 TextField(
                                   controller: descriptionController,
                                   decoration: InputDecoration(
-                                    labelText: S.of(context).playlistDescription,
+                                    labelText:
+                                        S.of(context).playlistDescription,
                                     hintText: S.of(context).addDescription,
                                     border: const OutlineInputBorder(),
                                     prefixIcon: const Icon(Icons.description),
@@ -216,7 +221,9 @@ class _PlaylistsScreenState extends ConsumerState<PlaylistsScreen>
                                 if (nameController.text.trim().isEmpty) {
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     SnackBar(
-                                      content: Text(S.of(context).enterPlaylistNameWarning),
+                                      content: Text(S
+                                          .of(context)
+                                          .enterPlaylistNameWarning),
                                       behavior: SnackBarBehavior.floating,
                                     ),
                                   );
@@ -226,7 +233,8 @@ class _PlaylistsScreenState extends ConsumerState<PlaylistsScreen>
                                 if (linkController.text.trim().isEmpty) {
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     SnackBar(
-                                      content: Text(S.of(context).enterPlaylistLink),
+                                      content:
+                                          Text(S.of(context).enterPlaylistLink),
                                       behavior: SnackBarBehavior.floating,
                                     ),
                                   );
@@ -235,7 +243,9 @@ class _PlaylistsScreenState extends ConsumerState<PlaylistsScreen>
                               }
                               Navigator.pop(context, true);
                             },
-                            child: Text(isCreateMode ? S.of(context).create : S.of(context).add),
+                            child: Text(isCreateMode
+                                ? S.of(context).create
+                                : S.of(context).add),
                           ),
                         ],
                       ),
@@ -366,8 +376,9 @@ class _PlaylistsScreenState extends ConsumerState<PlaylistsScreen>
           errorString.contains('connect')) {
         errorMessage = S.of(context).networkConnectionFailed;
       } else {
-        errorMessage = S.of(context).addFailedWithError(
-            errorString.length > 50 ? '${errorString.substring(0, 50)}...' : errorString);
+        errorMessage = S.of(context).addFailedWithError(errorString.length > 50
+            ? '${errorString.substring(0, 50)}...'
+            : errorString);
       }
 
       // 显示错误提示

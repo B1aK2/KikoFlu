@@ -56,9 +56,6 @@ class AuthState extends Equatable {
       [currentUser, token, host, isLoading, error, isLoggedIn];
 }
 
-
-
-
 // Auth notifier
 class AuthNotifier extends StateNotifier<AuthState> {
   final KikoeruApiService _apiService;
@@ -123,6 +120,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
           activeAccount.username,
           activeAccount.password,
           activeAccount.host,
+          activeAccount.serverCookie,
           silent: true, // Don't show loading state
         );
 
@@ -205,16 +203,27 @@ class AuthNotifier extends StateNotifier<AuthState> {
   Future<bool> login(
     String username,
     String password,
-    String host, {
+    String host,
+    String? serverCookie, {
     bool silent = false,
   }) async {
     if (!silent) {
       state = state.copyWith(isLoading: true, error: null);
     }
 
+    if (serverCookie != null) {
+      // 如果登录请求的时候配置了serverCookie参数则将其保存到 StorageService 中，以便后续在网络请求过程中调用
+      await StorageService.setString('server_cookie', serverCookie);
+    }
+
     try {
       print(
           '[Auth] Login attempt - username: $username, host: $host, silent: $silent');
+
+      // 删除主机地址末尾的斜杠，以免请求资源时出现地址错误
+      if (host.endsWith("/")) {
+        host = host.substring(0, host.length - 1);
+      }
 
       // Initialize API service with empty token first
       _apiService.init('', host);
@@ -272,6 +281,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
         password: password,
         host: normalizedHost,
         token: token,
+        serverCookie: serverCookie,
         lastUpdateTime: DateTime.now(),
       );
 
@@ -290,6 +300,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
             username: username,
             password: password,
             host: normalizedHost,
+            serverCookie: serverCookie,
             isActive: true,
             createdAt: DateTime.now(),
           ),
@@ -301,6 +312,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
             existingAccount.copyWith(
               password: password,
               isActive: true,
+              serverCookie: serverCookie,
               lastUsedAt: DateTime.now(),
             ),
           );
@@ -311,6 +323,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
               username: username,
               password: password,
               host: normalizedHost,
+              serverCookie: serverCookie,
               isActive: true,
               createdAt: DateTime.now(),
               lastUsedAt: DateTime.now(),
@@ -345,8 +358,14 @@ class AuthNotifier extends StateNotifier<AuthState> {
     }
   }
 
-  Future<bool> register(String username, String password, String host) async {
+  Future<bool> register(String username, String password, String host,
+      [String? serverCookie]) async {
     state = state.copyWith(isLoading: true, error: null);
+
+    // 如果注册请求的时候配置了serverCookie参数则将其保存到 StorageService 中，以便后续在网络请求过程中调用
+    if (serverCookie != null) {
+      await StorageService.setString('server_cookie', serverCookie);
+    }
 
     try {
       // Initialize API service
@@ -401,6 +420,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
         password: password,
         host: normalizedHost,
         token: token,
+        serverCookie: serverCookie,
         lastUpdateTime: DateTime.now(),
       );
 
@@ -417,6 +437,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
             password: password,
             host: normalizedHost,
             isActive: true,
+            serverCookie: serverCookie,
             createdAt: DateTime.now(),
             lastUsedAt: DateTime.now(),
           ),
@@ -503,6 +524,12 @@ class AuthNotifier extends StateNotifier<AuthState> {
         }
       }
 
+      // 如果当前用户配置了serverCookie，则在更新host时也更新API服务的serverCookie配置，以确保在host变更后仍然能够正确使用serverCookie进行认证
+      if (state.currentUser?.serverCookie != null) {
+        await StorageService.setString(
+            'server_cookie', state.currentUser!.serverCookie!);
+      }
+
       _apiService.init(state.token!, normalizedHost);
       await StorageService.setString('server_host', normalizedHost);
       state = state.copyWith(host: normalizedHost);
@@ -524,9 +551,15 @@ class AuthNotifier extends StateNotifier<AuthState> {
   Future<void> switchUser(User user) async {
     final token = user.token;
     final host = user.host;
+    final serverCookie = user.serverCookie;
 
     if (token != null && host != null) {
       print('[Auth] Switching user - username: ${user.name}, host: $host');
+
+      if (serverCookie != null) {
+        // 如果切换用户时配置了serverCookie参数则将其保存到 StorageService 中，以便后续在网络请求过程中调用
+        await StorageService.setString('server_cookie', serverCookie);
+      }
 
       _apiService.init(token, host);
       await StorageService.setString('auth_token', token);

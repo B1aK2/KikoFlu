@@ -65,14 +65,15 @@ class _AccountManagementScreenState
 
       // Login with the account
       final success = await ref.read(authProvider.notifier).login(
-            account.username,
-            account.password,
-            account.host,
-          );
+          account.username,
+          account.password,
+          account.host,
+          account.serverCookie);
 
       if (success && mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(S.of(context).switchedToAccount(account.username))),
+          SnackBar(
+              content: Text(S.of(context).switchedToAccount(account.username))),
         );
         await _loadAccounts();
       } else if (mounted) {
@@ -156,7 +157,8 @@ class _AccountManagementScreenState
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: ScrollableAppBar(
-        title: Text(S.of(context).accountManagement, style: const TextStyle(fontSize: 18)),
+        title: Text(S.of(context).accountManagement,
+            style: const TextStyle(fontSize: 18)),
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
@@ -198,7 +200,9 @@ class _AccountManagementScreenState
                         leading: CircleAvatar(
                           backgroundColor: account.isActive
                               ? Theme.of(context).colorScheme.primary
-                              : Theme.of(context).colorScheme.surfaceContainerHighest,
+                              : Theme.of(context)
+                                  .colorScheme
+                                  .surfaceContainerHighest,
                           child: Icon(
                             account.isActive
                                 ? Icons.check_circle
@@ -253,7 +257,8 @@ class _AccountManagementScreenState
                                     const Icon(Icons.delete, color: Colors.red),
                                     const SizedBox(width: 8),
                                     Text(S.of(context).delete,
-                                        style: const TextStyle(color: Colors.red)),
+                                        style:
+                                            const TextStyle(color: Colors.red)),
                                   ],
                                 ),
                               ),

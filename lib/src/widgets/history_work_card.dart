@@ -10,6 +10,7 @@ import '../services/audio_player_service.dart';
 import '../services/download_service.dart';
 import '../services/cache_service.dart';
 import '../screens/work_detail_screen.dart';
+import '../services/storage_service.dart';
 import '../utils/string_utils.dart';
 import '../providers/lyric_provider.dart';
 import '../../l10n/app_localizations.dart';
@@ -31,6 +32,10 @@ class HistoryWorkCard extends ConsumerWidget {
     final host = authState.host ?? '';
     final token = authState.token ?? '';
     final work = record.work;
+
+    Map<String, String> httpHeaders = {
+      "Cookie": StorageService.getString('server_cookie') ?? ""
+    };
 
     return Card(
       clipBehavior: Clip.antiAlias,
@@ -84,6 +89,7 @@ class HistoryWorkCard extends ConsumerWidget {
                       child: PrivacyBlurCover(
                         child: CachedNetworkImage(
                           imageUrl: work.getCoverImageUrl(host, token: token),
+                          httpHeaders: httpHeaders,
                           cacheKey: 'work_cover_${work.id}',
                           fit: BoxFit.cover,
                           placeholder: (context, url) => Container(
@@ -294,7 +300,8 @@ class HistoryWorkCard extends ConsumerWidget {
           print('Failed to resume playback: $e');
           if (context.mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(S.of(context).playbackFailed(e.toString()))),
+              SnackBar(
+                  content: Text(S.of(context).playbackFailed(e.toString()))),
             );
           }
         }

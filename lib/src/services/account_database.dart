@@ -45,6 +45,7 @@ class AccountDatabase {
         password TEXT NOT NULL,
         host TEXT NOT NULL,
         isActive INTEGER NOT NULL DEFAULT 0,
+        serverCookie TEXT,
         createdAt TEXT,
         lastUsedAt TEXT
       )

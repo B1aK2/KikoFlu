@@ -8,6 +8,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
 import '../utils/snackbar_util.dart';
+import '../services/storage_service.dart';
 import '../../l10n/app_localizations.dart';
 
 /// 封面预览对话框，支持放大查看和保存图片
@@ -107,9 +108,13 @@ class _CoverPreviewDialogState extends State<CoverPreviewDialog> {
             'cover_${widget.identifier ?? DateTime.now().millisecondsSinceEpoch}.jpg';
       } else if (widget.imageUrl != null) {
         // 网络图片
+        final serverCookie = StorageService.getString('server_cookie');
         final response = await Dio().get<List<int>>(
           widget.imageUrl!,
-          options: Options(responseType: ResponseType.bytes),
+          options: Options(
+            responseType: ResponseType.bytes,
+            headers: {'Cookie': serverCookie ?? ''},
+          ),
         );
         imageBytes = Uint8List.fromList(response.data!);
         fileName =
@@ -126,7 +131,8 @@ class _CoverPreviewDialogState extends State<CoverPreviewDialog> {
       }
     } catch (e) {
       if (mounted) {
-        SnackBarUtil.showError(context, S.of(context).saveFailedWithError(e.toString()));
+        SnackBarUtil.showError(
+            context, S.of(context).saveFailedWithError(e.toString()));
       }
     } finally {
       if (mounted) {
@@ -143,7 +149,8 @@ class _CoverPreviewDialogState extends State<CoverPreviewDialog> {
         final storageStatus = await Permission.storage.request();
         if (!storageStatus.isGranted) {
           if (mounted) {
-            SnackBarUtil.showError(context, S.of(context).storagePermissionRequiredForImage);
+            SnackBarUtil.showError(
+                context, S.of(context).storagePermissionRequiredForImage);
           }
           return;
         }

@@ -91,6 +91,7 @@ class DownloadService {
     try {
       final workDir = await _getWorkDownloadDirectory(workId);
       final coverFile = File('$workDir/cover.jpg');
+      final serverCookie = StorageService.getString('server_cookie');
 
       // 如果已存在则不重复下载
       if (await coverFile.exists()) {
@@ -98,6 +99,7 @@ class DownloadService {
       }
 
       // 下载图片
+      _dio.options.headers['Cookie'] = serverCookie ?? "";
       await _dio.download(coverUrl, coverFile.path);
       return coverFile.path;
     } catch (e) {
@@ -308,12 +310,13 @@ class DownloadService {
     _isProcessingQueue = true;
     try {
       // 获取所有等待中的任务
-      final pendingTasks = _tasks
-          .where((t) => t.status == DownloadStatus.pending)
-          .toList();
+      final pendingTasks =
+          _tasks.where((t) => t.status == DownloadStatus.pending).toList();
 
       if (pendingTasks.isNotEmpty) {
-        _log.debug('调度下载队列: ${pendingTasks.length} 个等待中, $_activeDownloadCount/$_maxConcurrentDownloads 个进行中', tag: 'Download');
+        _log.debug(
+            '调度下载队列: ${pendingTasks.length} 个等待中, $_activeDownloadCount/$_maxConcurrentDownloads 个进行中',
+            tag: 'Download');
       }
 
       for (final task in pendingTasks) {
@@ -335,7 +338,8 @@ class DownloadService {
       return;
     }
 
-    _log.info('开始下载: ${task.fileName} (workId: ${task.workId})', tag: 'Download');
+    _log.info('开始下载: ${task.fileName} (workId: ${task.workId})',
+        tag: 'Download');
 
     _updateTask(task.copyWith(status: DownloadStatus.downloading),
         immediate: true);
@@ -347,7 +351,8 @@ class DownloadService {
     final file = File(filePath);
     final tempFile = File(tempFilePath);
 
-    _log.debug('下载路径: filePath=$filePath, tempFile=$tempFilePath', tag: 'Download');
+    _log.debug('下载路径: filePath=$filePath, tempFile=$tempFilePath',
+        tag: 'Download');
 
     // 确保父目录存在
     await file.parent.create(recursive: true);
@@ -391,7 +396,11 @@ class DownloadService {
       const updateInterval = 500; // 500ms 更新一次
       int? firstReportedTotal; // 记录首次收到的total，用于诊断进度跳变
 
-      _log.info('开始网络下载: ${task.fileName}, url=${task.downloadUrl}', tag: 'Download');
+      final serverCookie = StorageService.getString('server_cookie');
+      _dio.options.headers['Cookie'] = serverCookie ?? "";
+
+      _log.info('开始网络下载: ${task.fileName}, url=${task.downloadUrl}',
+          tag: 'Download');
 
       // 下载到临时文件，完成后再重命名
       await _dio.download(
@@ -403,7 +412,9 @@ class DownloadService {
             // 诊断：检测服务器报告的总大小是否变化（可能导致进度条跳变）
             if (firstReportedTotal == null) {
               firstReportedTotal = total;
-              if (task.totalBytes != null && task.totalBytes! > 0 && task.totalBytes != total) {
+              if (task.totalBytes != null &&
+                  task.totalBytes! > 0 &&
+                  task.totalBytes != total) {
                 _log.warning(
                   '服务器报告的文件大小($total)与任务记录的大小(${task.totalBytes})不一致: ${task.fileName}',
                   tag: 'Download',
@@ -437,7 +448,8 @@ class DownloadService {
       _log.info('下载完成: ${task.fileName}', tag: 'Download');
 
       // 从 _tasks 获取当前版本以保留进度数据
-      final currentTask = _tasks.firstWhere((t) => t.id == task.id, orElse: () => task);
+      final currentTask =
+          _tasks.firstWhere((t) => t.id == task.id, orElse: () => task);
       final completedTask = currentTask.copyWith(
         status: DownloadStatus.completed,
         completedAt: DateTime.now(),
@@ -450,7 +462,8 @@ class DownloadService {
         _updateTask(task.copyWith(status: DownloadStatus.paused),
             immediate: true);
       } else if (e is PathNotFoundException) {
-        _log.error('路径不存在: ${task.fileName}, filePath=$filePath, error=$e', tag: 'Download');
+        _log.error('路径不存在: ${task.fileName}, filePath=$filePath, error=$e',
+            tag: 'Download');
         _updateTask(
             task.copyWith(
               status: DownloadStatus.failed,
@@ -458,7 +471,8 @@ class DownloadService {
             ),
             immediate: true);
       } else if (e is FileSystemException) {
-        _log.error('文件系统错误: ${task.fileName}, filePath=$filePath, error=$e', tag: 'Download');
+        _log.error('文件系统错误: ${task.fileName}, filePath=$filePath, error=$e',
+            tag: 'Download');
         _updateTask(
             task.copyWith(
               status: DownloadStatus.failed,
@@ -466,7 +480,9 @@ class DownloadService {
             ),
             immediate: true);
       } else if (e is DioException) {
-        _log.error('网络错误: ${task.fileName}, type=${e.type}, message=${e.message}, url=${task.downloadUrl}', tag: 'Download');
+        _log.error(
+            '网络错误: ${task.fileName}, type=${e.type}, message=${e.message}, url=${task.downloadUrl}',
+            tag: 'Download');
         _updateTask(
             task.copyWith(
               status: DownloadStatus.failed,
@@ -805,7 +821,8 @@ class DownloadService {
               // 如果 rename 失败（跨文件系统），尝试复制后删除
               await entity.copy(targetFile.path);
               await entity.delete();
-              _log.info('文件已复制并重新组织: $fileName -> $targetPath', tag: 'Download');
+              _log.info('文件已复制并重新组织: $fileName -> $targetPath',
+                  tag: 'Download');
             }
           }
         }
@@ -855,8 +872,8 @@ class DownloadService {
 
     if (await metadataFile.exists()) {
       try {
-        metadata =
-            jsonDecode(await metadataFile.readAsString()) as Map<String, dynamic>;
+        metadata = jsonDecode(await metadataFile.readAsString())
+            as Map<String, dynamic>;
       } catch (e) {
         _log.error('读取元数据失败: RJ$workId, $e', tag: 'Download');
       }
@@ -883,15 +900,13 @@ class DownloadService {
         final type = item['type'] as String? ?? '';
         final title = item['title'] as String? ?? '';
         if (type == 'folder') {
-          final folderPath =
-              parentPath.isEmpty ? title : '$parentPath/$title';
+          final folderPath = parentPath.isEmpty ? title : '$parentPath/$title';
           final children = item['children'] as List<dynamic>?;
           if (children != null) {
             collectKnownPaths(children, folderPath);
           }
         } else {
-          final filePath =
-              parentPath.isEmpty ? title : '$parentPath/$title';
+          final filePath = parentPath.isEmpty ? title : '$parentPath/$title';
           knownPaths.add(filePath);
         }
       }
@@ -1155,7 +1170,8 @@ class DownloadService {
       _tasksController.add(List.from(_tasks));
       await _saveTasks();
 
-      _log.info('同步完成：删除 ${tasksToRemove.length} 个，新增 ${newTasks.length} 个', tag: 'Download');
+      _log.info('同步完成：删除 ${tasksToRemove.length} 个，新增 ${newTasks.length} 个',
+          tag: 'Download');
     } catch (e) {
       _log.error('从硬盘同步任务失败: $e', tag: 'Download');
       rethrow;

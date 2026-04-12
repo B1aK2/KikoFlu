@@ -9,6 +9,7 @@ import '../models/download_task.dart';
 import '../models/sort_options.dart';
 import '../models/work.dart';
 import '../services/download_service.dart';
+import '../services/storage_service.dart';
 import '../utils/string_utils.dart';
 import '../utils/snackbar_util.dart';
 import '../providers/auth_provider.dart';
@@ -300,7 +301,8 @@ class _LocalDownloadsScreenState extends ConsumerState<LocalDownloadsScreen>
       context: context,
       builder: (context) => AlertDialog(
         title: Text(S.of(context).deletionConfirmTitle),
-        content: Text(S.of(context).deleteSelectedWorksConfirm(_selectedWorkIds.length)),
+        content: Text(
+            S.of(context).deleteSelectedWorksConfirm(_selectedWorkIds.length)),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
@@ -355,7 +357,10 @@ class _LocalDownloadsScreenState extends ConsumerState<LocalDownloadsScreen>
           if (mounted) {
             if (errorMessage != null && successCount > 0) {
               _showSnackBarSafe(
-                SnackBar(content: Text(S.of(context).deletedNOfTotal(successCount, totalCount))),
+                SnackBar(
+                    content: Text(S
+                        .of(context)
+                        .deletedNOfTotal(successCount, totalCount))),
               );
             } else if (errorMessage != null) {
               _showSnackBarSafe(
@@ -374,7 +379,9 @@ class _LocalDownloadsScreenState extends ConsumerState<LocalDownloadsScreen>
         Future.microtask(() {
           if (mounted) {
             _showSnackBarSafe(
-              SnackBar(content: Text(S.of(context).deleteFailedWithError(e.toString()))),
+              SnackBar(
+                  content:
+                      Text(S.of(context).deleteFailedWithError(e.toString()))),
             );
           }
         });
@@ -594,9 +601,9 @@ class _LocalDownloadsScreenState extends ConsumerState<LocalDownloadsScreen>
 
         // 获取当前页的作品
         final currentPageWorkIds = sortedWorkIds.sublist(
-              startIndex,
-              endIndex,
-            );
+          startIndex,
+          endIndex,
+        );
         final currentPageTasks = Map<int, List<DownloadTask>>.fromEntries(
           currentPageWorkIds.map((id) => MapEntry(id, groupedTasks[id]!)),
         );
@@ -633,92 +640,96 @@ class _LocalDownloadsScreenState extends ConsumerState<LocalDownloadsScreen>
                       ),
                     )
                   : groupedTasks.isEmpty
-                  ? Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            Icons.search_off,
-                            size: 64,
-                            color: Theme.of(context).colorScheme.outline,
-                          ),
-                          const SizedBox(height: 16),
-                          Text(
-                            S.of(context).noResults,
-                            style: TextStyle(
-                              fontSize: 16,
-                              color: Theme.of(context)
-                                  .colorScheme
-                                  .onSurfaceVariant,
-                            ),
-                          ),
-                        ],
-                      ),
-                    )
-                  : OverscrollNextPageDetector(
-                      hasNextPage: _currentPage < totalPages,
-                      isLoading: false,
-                      onNextPage: () async {
-                        _nextPage(totalPages);
-                        // 等待一帧后滚动到顶部，确保内容已加载
-                        await Future.delayed(const Duration(milliseconds: 50));
-                        WidgetsBinding.instance.addPostFrameCallback((_) {
-                          _scrollToTop();
-                        });
-                      },
-                      child: CustomScrollView(
-                        controller: _scrollController,
-                        cacheExtent: ScrollOptimization.cacheExtent,
-                        physics: ScrollOptimization.physics,
-                        slivers: [
-                          SliverPadding(
-                            padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-                            sliver: SliverGrid(
-                              gridDelegate:
-                                  const SliverGridDelegateWithMaxCrossAxisExtent(
-                                maxCrossAxisExtent: 210,
-                                childAspectRatio: 0.72,
-                                crossAxisSpacing: 12,
-                                mainAxisSpacing: 12,
+                      ? Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.search_off,
+                                size: 64,
+                                color: Theme.of(context).colorScheme.outline,
                               ),
-                              delegate: SliverChildBuilderDelegate(
-                                (context, index) {
-                                  final workId = currentPageWorkIds[index];
-                                  final workTasks = currentPageTasks[workId]!;
-                                  final firstTask = workTasks.first;
-                                  final isSelected =
-                                      _selectedWorkIds.contains(workId);
+                              const SizedBox(height: 16),
+                              Text(
+                                S.of(context).noResults,
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .onSurfaceVariant,
+                                ),
+                              ),
+                            ],
+                          ),
+                        )
+                      : OverscrollNextPageDetector(
+                          hasNextPage: _currentPage < totalPages,
+                          isLoading: false,
+                          onNextPage: () async {
+                            _nextPage(totalPages);
+                            // 等待一帧后滚动到顶部，确保内容已加载
+                            await Future.delayed(
+                                const Duration(milliseconds: 50));
+                            WidgetsBinding.instance.addPostFrameCallback((_) {
+                              _scrollToTop();
+                            });
+                          },
+                          child: CustomScrollView(
+                            controller: _scrollController,
+                            cacheExtent: ScrollOptimization.cacheExtent,
+                            physics: ScrollOptimization.physics,
+                            slivers: [
+                              SliverPadding(
+                                padding:
+                                    const EdgeInsets.fromLTRB(16, 8, 16, 16),
+                                sliver: SliverGrid(
+                                  gridDelegate:
+                                      const SliverGridDelegateWithMaxCrossAxisExtent(
+                                    maxCrossAxisExtent: 210,
+                                    childAspectRatio: 0.72,
+                                    crossAxisSpacing: 12,
+                                    mainAxisSpacing: 12,
+                                  ),
+                                  delegate: SliverChildBuilderDelegate(
+                                    (context, index) {
+                                      final workId = currentPageWorkIds[index];
+                                      final workTasks =
+                                          currentPageTasks[workId]!;
+                                      final firstTask = workTasks.first;
+                                      final isSelected =
+                                          _selectedWorkIds.contains(workId);
 
-                                  return _buildWorkCard(
-                                    workId: workId,
-                                    workTasks: workTasks,
-                                    firstTask: firstTask,
-                                    isSelected: isSelected,
-                                  );
-                                },
-                                childCount: currentPageTasks.length,
+                                      return _buildWorkCard(
+                                        workId: workId,
+                                        workTasks: workTasks,
+                                        firstTask: firstTask,
+                                        isSelected: isSelected,
+                                      );
+                                    },
+                                    childCount: currentPageTasks.length,
+                                  ),
+                                ),
                               ),
-                            ),
-                          ),
-                          // 分页控件
-                          SliverPadding(
-                            padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
-                            sliver: SliverToBoxAdapter(
-                              child: PaginationBar(
-                                currentPage: _currentPage,
-                                totalCount: totalCount,
-                                pageSize: _pageSize,
-                                hasMore: _currentPage < totalPages,
-                                isLoading: false,
-                                onPreviousPage: _previousPage,
-                                onNextPage: () => _nextPage(totalPages),
-                                onGoToPage: _goToPage,
+                              // 分页控件
+                              SliverPadding(
+                                padding:
+                                    const EdgeInsets.fromLTRB(16, 12, 16, 24),
+                                sliver: SliverToBoxAdapter(
+                                  child: PaginationBar(
+                                    currentPage: _currentPage,
+                                    totalCount: totalCount,
+                                    pageSize: _pageSize,
+                                    hasMore: _currentPage < totalPages,
+                                    isLoading: false,
+                                    onPreviousPage: _previousPage,
+                                    onNextPage: () => _nextPage(totalPages),
+                                    onGoToPage: _goToPage,
+                                  ),
+                                ),
                               ),
-                            ),
+                            ],
                           ),
-                        ],
-                      ),
-                    ),
+                        ),
             ),
           ],
         );
@@ -787,7 +798,8 @@ class _LocalDownloadsScreenState extends ConsumerState<LocalDownloadsScreen>
                     constraints:
                         const BoxConstraints(minWidth: 40, minHeight: 40),
                     onPressed: () => _deleteSelectedWorks(groupedTasks),
-                    tooltip: '${S.of(context).delete} (${_selectedWorkIds.length})',
+                    tooltip:
+                        '${S.of(context).delete} (${_selectedWorkIds.length})',
                     color: Theme.of(context).colorScheme.error,
                   ),
                 SizedBox(width: horizontalPadding - 8),
@@ -835,7 +847,9 @@ class _LocalDownloadsScreenState extends ConsumerState<LocalDownloadsScreen>
                       ),
                     ),
                     // 打开文件夹按钮（仅 Windows 和 macOS）
-                    if (Platform.isWindows || Platform.isMacOS || Platform.isLinux)
+                    if (Platform.isWindows ||
+                        Platform.isMacOS ||
+                        Platform.isLinux)
                       Padding(
                         padding: const EdgeInsets.only(right: 8),
                         child: TextButton.icon(
@@ -1180,6 +1194,11 @@ class _LocalDownloadsScreenState extends ConsumerState<LocalDownloadsScreen>
       }
     }
 
+    // 从StroageService获取cookie，确保网络请求包含认证信息
+    Map<String, String> httpHeaders = {
+      "Cookie": StorageService.getString('server_cookie') ?? ""
+    };
+
     // 降级使用网络封面
     if (work != null && host.isNotEmpty) {
       return Hero(
@@ -1188,6 +1207,7 @@ class _LocalDownloadsScreenState extends ConsumerState<LocalDownloadsScreen>
           borderRadius: BorderRadius.circular(8),
           child: CachedNetworkImage(
             imageUrl: work.getCoverImageUrl(host, token: token),
+            httpHeaders: httpHeaders,
             fit: BoxFit.cover,
             errorWidget: (context, url, error) => _buildPlaceholder(),
           ),

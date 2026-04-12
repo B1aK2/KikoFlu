@@ -6,6 +6,7 @@ class Account extends Equatable {
   final String password;
   final String host;
   final bool isActive;
+  final String? serverCookie;
   final DateTime? createdAt;
   final DateTime? lastUsedAt;
 
@@ -15,6 +16,7 @@ class Account extends Equatable {
     required this.password,
     required this.host,
     this.isActive = false,
+    this.serverCookie,
     this.createdAt,
     this.lastUsedAt,
   });
@@ -26,6 +28,7 @@ class Account extends Equatable {
       password: map['password'] as String,
       host: map['host'] as String,
       isActive: (map['isActive'] as int) == 1,
+      serverCookie: map['serverCookie'] as String?,
       createdAt: map['createdAt'] != null
           ? DateTime.parse(map['createdAt'] as String)
           : null,
@@ -42,6 +45,7 @@ class Account extends Equatable {
       'password': password,
       'host': host,
       'isActive': isActive ? 1 : 0,
+      'serverCookie': serverCookie,
       'createdAt': createdAt?.toIso8601String(),
       'lastUsedAt': lastUsedAt?.toIso8601String(),
     };
@@ -53,6 +57,7 @@ class Account extends Equatable {
     String? password,
     String? host,
     bool? isActive,
+    String? serverCookie,
     DateTime? createdAt,
     DateTime? lastUsedAt,
   }) {
@@ -62,16 +67,25 @@ class Account extends Equatable {
       password: password ?? this.password,
       host: host ?? this.host,
       isActive: isActive ?? this.isActive,
+      serverCookie: serverCookie ?? this.serverCookie,
       createdAt: createdAt ?? this.createdAt,
       lastUsedAt: lastUsedAt ?? this.lastUsedAt,
     );
   }
 
   @override
-  List<Object?> get props =>
-      [id, username, password, host, isActive, createdAt, lastUsedAt];
+  List<Object?> get props => [
+        id,
+        username,
+        password,
+        host,
+        isActive,
+        serverCookie,
+        createdAt,
+        lastUsedAt,
+      ];
 
   @override
   String toString() =>
-      'Account(id: $id, username: $username, host: $host, isActive: $isActive)';
+      'Account(id: $id, username: $username, host: $host, isActive: $isActive, serverCookie: $serverCookie)';
 }

@@ -30,6 +30,7 @@
   "salesRangeAll": "全部",
 
   "sortRelease": "发布日期",
+  "sortCreateAt": "添加日期",
   "sortCreateDate": "收录日期",
   "sortRating": "评分",
   "sortReviewCount": "评论数",
@@ -70,6 +71,7 @@
   "username": "用户名",
   "password": "密码",
   "serverAddress": "服务器地址",
+  "serverCookie": "服务器Cookie",
   "login": "登录",
   "loginSuccess": "登录成功",
   "loginFailed": "登录失败",

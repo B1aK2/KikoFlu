@@ -4,6 +4,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import '../providers/playlist_detail_provider.dart';
 import '../providers/auth_provider.dart';
 import '../models/work.dart';
+import '../services/storage_service.dart';
 import '../widgets/pagination_bar.dart';
 import '../widgets/scrollable_appbar.dart';
 import '../utils/snackbar_util.dart';
@@ -87,7 +88,9 @@ class _PlaylistDetailScreenState extends ConsumerState<PlaylistDetailScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: Text(isOwner ? S.of(context).deletePlaylist : S.of(context).unfavoritePlaylist),
+        title: Text(isOwner
+            ? S.of(context).deletePlaylist
+            : S.of(context).unfavoritePlaylist),
         content: Text(
           isOwner
               ? S.of(context).deletePlaylistConfirm
@@ -103,7 +106,8 @@ class _PlaylistDetailScreenState extends ConsumerState<PlaylistDetailScreen> {
             style: FilledButton.styleFrom(
               backgroundColor: Theme.of(context).colorScheme.error,
             ),
-            child: Text(isOwner ? S.of(context).delete : S.of(context).unfavorite),
+            child:
+                Text(isOwner ? S.of(context).delete : S.of(context).unfavorite),
           ),
         ],
       ),
@@ -147,7 +151,8 @@ class _PlaylistDetailScreenState extends ConsumerState<PlaylistDetailScreen> {
       SnackBarUtil.hide(context);
 
       // 显示错误提示
-      SnackBarUtil.showError(context, S.of(context).deleteFailedWithError(e.toString()));
+      SnackBarUtil.showError(
+          context, S.of(context).deleteFailedWithError(e.toString()));
     }
   }
 
@@ -235,15 +240,18 @@ class _PlaylistDetailScreenState extends ConsumerState<PlaylistDetailScreen> {
                             items: [
                               DropdownMenuItem(
                                 value: 0,
-                                child: Text(S.of(context).playlistPrivacyPrivate),
+                                child:
+                                    Text(S.of(context).playlistPrivacyPrivate),
                               ),
                               DropdownMenuItem(
                                 value: 1,
-                                child: Text(S.of(context).playlistPrivacyUnlisted),
+                                child:
+                                    Text(S.of(context).playlistPrivacyUnlisted),
                               ),
                               DropdownMenuItem(
                                 value: 2,
-                                child: Text(S.of(context).playlistPrivacyPublic),
+                                child:
+                                    Text(S.of(context).playlistPrivacyPublic),
                               ),
                             ],
                             onChanged: (value) {
@@ -288,7 +296,8 @@ class _PlaylistDetailScreenState extends ConsumerState<PlaylistDetailScreen> {
                             onPressed: () {
                               final name = nameController.text.trim();
                               if (name.isEmpty) {
-                                SnackBarUtil.showWarning(context, S.of(context).playlistNameRequired);
+                                SnackBarUtil.showWarning(context,
+                                    S.of(context).playlistNameRequired);
                                 return;
                               }
                               Navigator.of(context).pop();
@@ -439,7 +448,8 @@ class _PlaylistDetailScreenState extends ConsumerState<PlaylistDetailScreen> {
                                         ),
                                         const SizedBox(width: 4),
                                         Text(
-                                          S.of(context).detectedNWorkIds(parsedWorkIds.length),
+                                          S.of(context).detectedNWorkIds(
+                                              parsedWorkIds.length),
                                           style: Theme.of(context)
                                               .textTheme
                                               .bodySmall
@@ -499,7 +509,9 @@ class _PlaylistDetailScreenState extends ConsumerState<PlaylistDetailScreen> {
                                     },
                               child: Text(parsedWorkIds.isEmpty
                                   ? S.of(context).add
-                                  : S.of(context).addNWorks(parsedWorkIds.length)),
+                                  : S
+                                      .of(context)
+                                      .addNWorks(parsedWorkIds.length)),
                             ),
                           ],
                         ),
@@ -537,7 +549,8 @@ class _PlaylistDetailScreenState extends ConsumerState<PlaylistDetailScreen> {
     try {
       // 显示加载提示
       if (!mounted) return;
-      SnackBarUtil.showLoading(context, S.of(context).addingNWorks(workIds.length));
+      SnackBarUtil.showLoading(
+          context, S.of(context).addingNWorks(workIds.length));
 
       await ref
           .read(playlistDetailProvider(widget.playlistId).notifier)
@@ -549,7 +562,8 @@ class _PlaylistDetailScreenState extends ConsumerState<PlaylistDetailScreen> {
       SnackBarUtil.hide(context);
 
       // 显示成功提示
-      SnackBarUtil.showSuccess(context, S.of(context).addedNWorksSuccess(workIds.length));
+      SnackBarUtil.showSuccess(
+          context, S.of(context).addedNWorksSuccess(workIds.length));
     } catch (e) {
       if (!mounted) return;
 
@@ -557,7 +571,8 @@ class _PlaylistDetailScreenState extends ConsumerState<PlaylistDetailScreen> {
       SnackBarUtil.hide(context);
 
       // 显示错误提示
-      SnackBarUtil.showError(context, S.of(context).addFailedWithError(e.toString()));
+      SnackBarUtil.showError(
+          context, S.of(context).addFailedWithError(e.toString()));
     }
   }
 
@@ -614,7 +629,8 @@ class _PlaylistDetailScreenState extends ConsumerState<PlaylistDetailScreen> {
       SnackBarUtil.hide(context);
 
       // 显示错误提示
-      SnackBarUtil.showError(context, S.of(context).removeFailedWithError(e.toString()));
+      SnackBarUtil.showError(
+          context, S.of(context).removeFailedWithError(e.toString()));
     }
   }
 
@@ -651,7 +667,8 @@ class _PlaylistDetailScreenState extends ConsumerState<PlaylistDetailScreen> {
       SnackBarUtil.hide(context);
 
       // 显示错误提示
-      SnackBarUtil.showError(context, S.of(context).saveFailedWithError(e.toString()));
+      SnackBarUtil.showError(
+          context, S.of(context).saveFailedWithError(e.toString()));
     }
   }
 
@@ -1025,6 +1042,11 @@ class _PlaylistDetailScreenState extends ConsumerState<PlaylistDetailScreen> {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
+    // 从StroageService获取cookie，确保网络请求包含认证信息
+    Map<String, String> httpHeaders = {
+      "Cookie": StorageService.getString('server_cookie') ?? ""
+    };
+
     return InkWell(
       onTap: () {
         Navigator.of(context).push(
@@ -1056,6 +1078,7 @@ class _PlaylistDetailScreenState extends ConsumerState<PlaylistDetailScreen> {
                   borderRadius: BorderRadius.circular(4),
                   child: CachedNetworkImage(
                     imageUrl: work.getCoverImageUrl(host, token: token),
+                    httpHeaders: httpHeaders,
                     cacheKey: 'work_cover_${work.id}',
                     width: 56,
                     height: 56,

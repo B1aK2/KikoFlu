@@ -62,6 +62,7 @@ extension SortOrderL10n on SortOrder {
     final s = S.of(context);
     return switch (this) {
       SortOrder.release => s.sortRelease,
+      SortOrder.createAt => s.sortCreateAt,
       SortOrder.createDate => s.sortCreateDate,
       SortOrder.rating => s.sortRating,
       SortOrder.review => s.sortReviewCount,

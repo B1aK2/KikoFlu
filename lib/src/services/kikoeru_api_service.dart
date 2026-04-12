@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'dart:convert';
 import '../models/work.dart';
 import '../utils/server_utils.dart';
+import '../services/storage_service.dart';
 import 'cache_service.dart';
 
 class KikoeruApiService {
@@ -37,6 +38,10 @@ class KikoeruApiService {
           }
           // Dart HttpClient 默认支持 gzip，显式声明可确保服务器知晓
           options.headers['Accept-Encoding'] = 'gzip';
+
+          // 创建Dio对象是判断是否设置了Cookie，如果设置了就添加到请求头中，确保每次请求都携带认证信息
+          options.headers['Cookie'] =
+              StorageService.getString('server_cookie') ?? "";
 
           // Add Authorization header if token exists
           // Only exclude for POST requests to auth endpoints (login/register)

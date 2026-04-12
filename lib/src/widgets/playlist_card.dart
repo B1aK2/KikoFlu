@@ -4,6 +4,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import '../models/playlist.dart';
 import '../../l10n/app_localizations.dart';
 import '../providers/auth_provider.dart';
+import '../services/storage_service.dart';
 import 'privacy_blur_cover.dart';
 
 class PlaylistCard extends ConsumerWidget {
@@ -24,6 +25,10 @@ class PlaylistCard extends ConsumerWidget {
     final host = authState.host ?? '';
     final token = authState.token ?? '';
     final theme = Theme.of(context);
+
+    Map<String, String> httpHeaders = {
+      "Cookie": StorageService.getString('server_cookie') ?? ""
+    };
 
     return Card(
       elevation: 1,
@@ -48,6 +53,7 @@ class PlaylistCard extends ConsumerWidget {
                   borderRadius: BorderRadius.circular(8),
                   child: CachedNetworkImage(
                     imageUrl: playlist.getFullCoverUrl(host, token: token),
+                    httpHeaders: httpHeaders,
                     fit: BoxFit.cover,
                     placeholder: (context, url) => Container(
                       color: theme.colorScheme.surfaceContainerHighest,

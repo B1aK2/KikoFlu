@@ -9,6 +9,7 @@ import 'package:share_plus/share_plus.dart';
 import '../services/cache_service.dart';
 import '../services/translation_service.dart';
 import '../services/subtitle_library_service.dart';
+import '../services/storage_service.dart';
 import '../utils/snackbar_util.dart';
 import '../utils/encoding_utils.dart';
 import '../utils/scroll_optimization.dart';
@@ -193,7 +194,8 @@ class _TextPreviewScreenState extends State<TextPreviewScreen> {
         while (await File(finalPath).exists()) {
           final nameWithoutExt = path.basenameWithoutExtension(fileName);
           final ext = path.extension(fileName);
-          finalPath = path.join(directoryPath, '${nameWithoutExt}_$counter$ext');
+          finalPath =
+              path.join(directoryPath, '${nameWithoutExt}_$counter$ext');
           counter++;
         }
 
@@ -203,12 +205,14 @@ class _TextPreviewScreenState extends State<TextPreviewScreen> {
         await file.writeAsBytes(bytes);
 
         if (mounted) {
-          SnackBarUtil.showSuccess(context, S.of(context).fileSavedToPath(finalPath));
+          SnackBarUtil.showSuccess(
+              context, S.of(context).fileSavedToPath(finalPath));
         }
       }
     } catch (e) {
       if (mounted) {
-        SnackBarUtil.showError(context, S.of(context).saveFailedWithError(e.toString()));
+        SnackBarUtil.showError(
+            context, S.of(context).saveFailedWithError(e.toString()));
       }
     }
   }
@@ -229,7 +233,8 @@ class _TextPreviewScreenState extends State<TextPreviewScreen> {
           await SubtitleLibraryService.getSubtitleLibraryDirectory();
 
       // 创建“已保存”目录
-      final savedDir = Directory(path.join(libraryDir.path, SubtitleLibraryService.savedFolderName));
+      final savedDir = Directory(
+          path.join(libraryDir.path, SubtitleLibraryService.savedFolderName));
       if (!await savedDir.exists()) {
         await savedDir.create();
       }
@@ -266,13 +271,15 @@ class _TextPreviewScreenState extends State<TextPreviewScreen> {
       if (mounted) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (mounted) {
-            SnackBarUtil.showSuccess(context, S.of(context).savedToSubtitleLibrary);
+            SnackBarUtil.showSuccess(
+                context, S.of(context).savedToSubtitleLibrary);
           }
         });
       }
     } catch (e) {
       if (mounted) {
-        SnackBarUtil.showError(context, S.of(context).saveFailedWithError(e.toString()));
+        SnackBarUtil.showError(
+            context, S.of(context).saveFailedWithError(e.toString()));
       }
     }
   }
@@ -335,11 +342,13 @@ class _TextPreviewScreenState extends State<TextPreviewScreen> {
       }
 
       final dio = Dio();
+      final serverCookie = StorageService.getString('server_cookie');
       final response = await dio.get(
         widget.textUrl,
         options: Options(
           responseType: ResponseType.bytes, // 改为获取字节数据
           receiveTimeout: const Duration(seconds: 30),
+          headers: {'Cookie': serverCookie ?? ''},
         ),
       );
 
@@ -389,7 +398,8 @@ class _TextPreviewScreenState extends State<TextPreviewScreen> {
         _content!,
         onProgress: (current, total) {
           setState(() {
-            _translationProgress = S.of(context).translatingProgress(current, total);
+            _translationProgress =
+                S.of(context).translatingProgress(current, total);
           });
         },
       );
@@ -407,7 +417,8 @@ class _TextPreviewScreenState extends State<TextPreviewScreen> {
         _translationProgress = '';
       });
       if (mounted) {
-        SnackBarUtil.showError(context, S.of(context).translationFailed(e.toString()));
+        SnackBarUtil.showError(
+            context, S.of(context).translationFailed(e.toString()));
       }
     }
   }
@@ -430,7 +441,9 @@ class _TextPreviewScreenState extends State<TextPreviewScreen> {
                   _isEditMode = !_isEditMode;
                 });
               },
-              tooltip: _isEditMode ? S.of(context).previewMode : S.of(context).editMode,
+              tooltip: _isEditMode
+                  ? S.of(context).previewMode
+                  : S.of(context).editMode,
             ),
           if (_content != null && _content!.isNotEmpty)
             IconButton(
@@ -460,7 +473,9 @@ class _TextPreviewScreenState extends State<TextPreviewScreen> {
                         _translateContent();
                       }
                     },
-              tooltip: _showTranslation ? S.of(context).showOriginal : S.of(context).translateContent,
+              tooltip: _showTranslation
+                  ? S.of(context).showOriginal
+                  : S.of(context).translateContent,
             ),
           IconButton(
             icon: const Icon(Icons.download),

@@ -213,6 +213,10 @@ class CacheService {
 
       // 下载文件（先至临时文件）
       print('[Cache] 下载音频文件: $hash');
+
+      // 配置服务器Cookie（如果存在）
+      final serverCookie = StorageService.getString('server_cookie');
+      dio.options.headers['Cookie'] = serverCookie ?? "";
       await dio.download(url, tempFile.path);
 
       // 下载完成后重命名为最终文件并写入 meta
@@ -319,6 +323,10 @@ class CacheService {
       }
 
       // 下载文件
+      // 配置服务器Cookie（如果存在）
+      final serverCookie = StorageService.getString('server_cookie');
+      dio.options.headers['Cookie'] = serverCookie ?? "";
+
       await dio.download(url, filePath);
 
       // 保存缓存元数据

@@ -30,6 +30,7 @@
   "salesRangeAll": "すべて",
 
   "sortRelease": "発売日",
+  "sortCreateAt": "追加日",
   "sortCreateDate": "登録日",
   "sortRating": "評価",
   "sortReviewCount": "レビュー数",
@@ -70,6 +71,7 @@
   "username": "ユーザー名",
   "password": "パスワード",
   "serverAddress": "サーバーアドレス",
+  "serverCookie": "サーバークッキー",
   "login": "ログイン",
   "loginSuccess": "ログイン成功",
   "loginFailed": "ログイン失敗",
