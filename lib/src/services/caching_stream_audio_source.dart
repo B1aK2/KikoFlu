@@ -5,6 +5,7 @@ import 'dart:io';
 import 'package:just_audio/just_audio.dart';
 
 import 'cache_service.dart';
+import 'storage_service.dart';
 
 class CachingStreamAudioSource extends StreamAudioSource {
   CachingStreamAudioSource({
@@ -27,6 +28,12 @@ class CachingStreamAudioSource extends StreamAudioSource {
           ? 'bytes=$resolvedStart-$endInclusive'
           : 'bytes=$resolvedStart-';
       request.headers.set(HttpHeaders.rangeHeader, rangeHeader);
+    }
+
+    // 如果配置了服务器cookie，则添加Cookie字段
+    final cookieHeaders = StorageService.serverCookieHeaders;
+    if (cookieHeaders.containsKey('Cookie')) {
+      request.headers.add(HttpHeaders.cookieHeader, cookieHeaders['Cookie']!);
     }
 
     final response = await request.close();

@@ -32,8 +32,9 @@ class AccountDatabase {
 
     return await openDatabase(
       path,
-      version: 1,
+      version: 2,
       onCreate: _createDB,
+      onUpgrade: _upgradeDB,
     );
   }
 
@@ -45,10 +46,17 @@ class AccountDatabase {
         password TEXT NOT NULL,
         host TEXT NOT NULL,
         isActive INTEGER NOT NULL DEFAULT 0,
+        serverCookie TEXT,
         createdAt TEXT,
         lastUsedAt TEXT
       )
     ''');
+  }
+
+  Future<void> _upgradeDB(Database db, int oldVersion, int newVersion) async {
+    if (oldVersion < 2) {
+      await db.execute('ALTER TABLE accounts ADD COLUMN serverCookie TEXT');
+    }
   }
 
   Future<Account> createAccount(Account account) async {

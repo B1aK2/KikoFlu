@@ -240,6 +240,12 @@ abstract class S {
   /// **'Release Date'**
   String get sortRelease;
 
+  /// No description provided for @sortCreateAt.
+  ///
+  /// In en, this message translates to:
+  /// **'Added Date'**
+  String get sortCreateAt;
+
   /// No description provided for @sortCreateDate.
   ///
   /// In en, this message translates to:
@@ -443,6 +449,12 @@ abstract class S {
   /// In en, this message translates to:
   /// **'Server Address'**
   String get serverAddress;
+
+  /// No description provided for @serverCookie.
+  ///
+  /// In en, this message translates to:
+  /// **'Server Cookie'**
+  String get serverCookie;
 
   /// No description provided for @login.
   ///

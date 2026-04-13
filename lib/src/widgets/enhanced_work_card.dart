@@ -5,6 +5,7 @@ import '../models/work.dart';
 import '../providers/auth_provider.dart';
 import '../providers/work_card_display_provider.dart';
 import '../providers/subtitle_library_provider.dart';
+import '../services/storage_service.dart';
 import '../screens/work_detail_screen.dart';
 import '../utils/snackbar_util.dart';
 import '../utils/string_utils.dart';
@@ -60,7 +61,8 @@ class _EnhancedWorkCardState extends ConsumerState<EnhancedWorkCard> {
     } catch (e) {
       setState(() => _loadingProgress = false);
       if (mounted) {
-        SnackBarUtil.showError(context, S.of(context).getStatusFailed(e.toString()));
+        SnackBarUtil.showError(
+            context, S.of(context).getStatusFailed(e.toString()));
       }
     }
   }
@@ -597,6 +599,8 @@ class _EnhancedWorkCardState extends ConsumerState<EnhancedWorkCard> {
         targetWidth = (80 * devicePixelRatio).round(); // 列表模式封面固定宽度
     }
 
+    final httpHeaders = StorageService.serverCookieHeaders;
+
     return Hero(
       tag: 'work_cover_${widget.work.id}',
       child: PrivacyBlurCover(
@@ -604,6 +608,7 @@ class _EnhancedWorkCardState extends ConsumerState<EnhancedWorkCard> {
         child: RepaintBoundary(
           child: CachedNetworkImage(
             imageUrl: url,
+            httpHeaders: httpHeaders,
             cacheKey: 'work_cover_${widget.work.id}',
             memCacheWidth: targetWidth, // 降低解码分辨率，减少 GPU / CPU 压力
             fadeInDuration: const Duration(milliseconds: 120),

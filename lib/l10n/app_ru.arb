@@ -30,6 +30,7 @@
   "salesRangeAll": "Все",
 
   "sortRelease": "Дата выхода",
+  "sortCreateAt": "Дата добавления",
   "sortCreateDate": "Дата каталога",
   "sortRating": "Рейтинг",
   "sortReviewCount": "Отзывы",
@@ -70,6 +71,7 @@
   "username": "Имя пользователя",
   "password": "Пароль",
   "serverAddress": "Адрес сервера",
+  "serverCookie": "Cookie сервера",
   "login": "Войти",
   "loginSuccess": "Вход выполнен",
   "loginFailed": "Ошибка входа",

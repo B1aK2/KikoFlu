@@ -61,6 +61,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
   final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
+  final _serverCookieController = TextEditingController();
 
   bool _isLogin = true; // true for login, false for register
   bool _obscurePassword = true;
@@ -82,6 +83,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   void dispose() {
     _usernameController.dispose();
     _passwordController.dispose();
+    _serverCookieController.dispose();
     super.dispose();
   }
 
@@ -95,6 +97,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     final username = _usernameController.text.trim();
     final password = _passwordController.text;
     final host = _hostValue.trim();
+    final serverCookie = _serverCookieController.text.trim();
 
     if (!_isLogin) {
       if (username.length < 5) {
@@ -114,18 +117,19 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       if (_isLogin) {
         success = await ref
             .read(authProvider.notifier)
-            .login(username, password, host);
+            .login(username, password, host, serverCookie);
       } else {
         success = await ref
             .read(authProvider.notifier)
-            .register(username, password, host);
+            .register(username, password, host, serverCookie);
       }
 
       if (success && mounted) {
         if (widget.isAddingAccount) {
           // Adding account mode - just go back
           Navigator.pop(context, true);
-          SnackBarUtil.showSuccess(context, S.of(context).accountAdded(username));
+          SnackBarUtil.showSuccess(
+              context, S.of(context).accountAdded(username));
         } else {
           // Normal login - go to main screen
           Navigator.of(context).pushAndRemoveUntil(
@@ -137,7 +141,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         final error = ref.read(authProvider).error;
         SnackBarUtil.showError(
           context,
-          error ?? (_isLogin ? S.of(context).loginFailed : S.of(context).registerFailed),
+          error ??
+              (_isLogin
+                  ? S.of(context).loginFailed
+                  : S.of(context).registerFailed),
         );
       }
     } catch (e) {
@@ -195,11 +202,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     final host = _hostValue.trim();
     const guestUsername = 'guest';
     const guestPassword = 'guest';
+    final serverCookie = _serverCookieController.text.trim();
 
     try {
       final success = await ref
           .read(authProvider.notifier)
-          .login(guestUsername, guestPassword, host);
+          .login(guestUsername, guestPassword, host, serverCookie);
 
       if (success && mounted) {
         if (widget.isAddingAccount) {
@@ -268,6 +276,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
   Widget _buildHostLatencyActions(BuildContext context) {
     final normalized = _normalizedHostString(_hostValue);
+    final serverCookie = _serverCookieController.text.trim();
     final result = normalized.isEmpty ? null : _latencyResults[normalized];
     final isTesting = result?.state == _LatencyState.testing;
     final statusText = normalized.isEmpty
@@ -288,7 +297,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           ),
           onPressed: normalized.isEmpty || isTesting
               ? null
-              : () => _testLatencyForHost(_hostValue),
+              : () => _testLatencyForHost(_hostValue, serverCookie),
           icon: isTesting
               ? const SizedBox(
                   width: 16,
@@ -296,7 +305,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   child: CircularProgressIndicator(strokeWidth: 2),
                 )
               : const Icon(Icons.network_ping_outlined),
-          label: Text(isTesting ? S.of(context).testing : S.of(context).testConnection),
+          label: Text(
+              isTesting ? S.of(context).testing : S.of(context).testConnection),
         ),
         const SizedBox(width: 8),
         Expanded(
@@ -311,7 +321,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     );
   }
 
-  Future<void> _testLatencyForHost(String host) async {
+  Future<void> _testLatencyForHost(String host, [String? serverCookie]) async {
     final normalized = _normalizedHostString(host);
     if (normalized.isEmpty) {
       return;
@@ -351,6 +361,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         '$baseUrl/api/health',
         options: Options(
           validateStatus: (status) => status != null && status < 500,
+          headers: (serverCookie != null && serverCookie.isNotEmpty)
+              ? {'Cookie': serverCookie}
+              : null,
         ),
       );
 
@@ -458,7 +471,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     return Scaffold(
       appBar: ScrollableAppBar(
         title: Text(widget.isAddingAccount
-            ? (_isLogin ? S.of(context).addAccount : S.of(context).registerAccount)
+            ? (_isLogin
+                ? S.of(context).addAccount
+                : S.of(context).registerAccount)
             : (_isLogin ? S.of(context).login : S.of(context).register)),
         centerTitle: true,
         // Show back button in adding account mode
@@ -672,7 +687,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
               }
               return null;
             },
-            textInputAction: TextInputAction.done,
+            textInputAction: TextInputAction.next,
             onFieldSubmitted: (_) => _submit(),
           );
         },
@@ -687,6 +702,24 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       _buildHostLatencyActions(context),
 
       const SizedBox(height: 15),
+
+      // Cookie field (collapsible)
+      ExpansionTile(
+        title: const Text('Cookie'),
+        children: [
+          TextFormField(
+            controller: _serverCookieController,
+            decoration: InputDecoration(
+              labelText: S.of(context).serverCookie,
+              prefixIcon: const Icon(Icons.security),
+              border: const OutlineInputBorder(),
+              helperText: 'Server Cookie',
+            ),
+            textInputAction: TextInputAction.done,
+          ),
+          const SizedBox(height: 16),
+        ],
+      ),
 
       // Submit button
       FilledButton(
@@ -719,7 +752,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       TextButton(
         onPressed: _toggleMode,
         child: Text(
-          _isLogin ? S.of(context).noAccountTapToRegister : S.of(context).haveAccountTapToLogin,
+          _isLogin
+              ? S.of(context).noAccountTapToRegister
+              : S.of(context).haveAccountTapToLogin,
           style: TextStyle(
             color: Theme.of(context).colorScheme.primary,
           ),

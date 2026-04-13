@@ -120,4 +120,14 @@ class StorageService {
     }
     return null;
   }
+
+  /// Returns HTTP headers with server cookie if configured.
+  /// Only includes the Cookie header when a non-empty value exists.
+  static Map<String, String> get serverCookieHeaders {
+    final cookie = getString('server_cookie');
+    if (cookie != null && cookie.isNotEmpty) {
+      return {'Cookie': cookie};
+    }
+    return {};
+  }
 }

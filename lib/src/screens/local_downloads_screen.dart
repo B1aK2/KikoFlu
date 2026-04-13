@@ -9,6 +9,7 @@ import '../models/download_task.dart';
 import '../models/sort_options.dart';
 import '../models/work.dart';
 import '../services/download_service.dart';
+import '../services/storage_service.dart';
 import '../utils/string_utils.dart';
 import '../utils/snackbar_util.dart';
 import '../providers/auth_provider.dart';
@@ -1180,6 +1181,8 @@ class _LocalDownloadsScreenState extends ConsumerState<LocalDownloadsScreen>
       }
     }
 
+    final httpHeaders = StorageService.serverCookieHeaders;
+
     // 降级使用网络封面
     if (work != null && host.isNotEmpty) {
       return Hero(
@@ -1188,6 +1191,7 @@ class _LocalDownloadsScreenState extends ConsumerState<LocalDownloadsScreen>
           borderRadius: BorderRadius.circular(8),
           child: CachedNetworkImage(
             imageUrl: work.getCoverImageUrl(host, token: token),
+            httpHeaders: httpHeaders,
             fit: BoxFit.cover,
             errorWidget: (context, url, error) => _buildPlaceholder(),
           ),

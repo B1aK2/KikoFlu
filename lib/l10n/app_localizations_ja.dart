@@ -79,6 +79,9 @@ class SJa extends S {
   String get sortRelease => '発売日';
 
   @override
+  String get sortCreateAt => '追加日';
+
+  @override
   String get sortCreateDate => '登録日';
 
   @override
@@ -179,6 +182,9 @@ class SJa extends S {
 
   @override
   String get serverAddress => 'サーバーアドレス';
+
+  @override
+  String get serverCookie => 'サーバークッキー';
 
   @override
   String get login => 'ログイン';

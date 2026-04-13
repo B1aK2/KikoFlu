@@ -6,6 +6,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../services/cache_service.dart';
+import '../services/storage_service.dart';
 import '../../l10n/app_localizations.dart';
 import 'scrollable_appbar.dart';
 
@@ -115,6 +116,8 @@ class _PdfPreviewScreenState extends State<PdfPreviewScreen> {
         }
 
         final dio = Dio();
+        dio.options.headers.addAll(StorageService.serverCookieHeaders);
+
         final newCachedPath = await CacheService.cacheFileResource(
           workId: widget.workId!,
           hash: widget.hash!,
@@ -153,6 +156,7 @@ class _PdfPreviewScreenState extends State<PdfPreviewScreen> {
         filePath,
         options: Options(
           receiveTimeout: const Duration(seconds: 60),
+          headers: StorageService.serverCookieHeaders,
         ),
         onReceiveProgress: (received, total) {
           if (total != -1) {
@@ -328,7 +332,8 @@ class _PdfPreviewScreenState extends State<PdfPreviewScreen> {
         });
       },
       onError: (error) {
-        setState(() => _errorMessage = S.of(context).renderPdfFailed(error.toString()));
+        setState(() =>
+            _errorMessage = S.of(context).renderPdfFailed(error.toString()));
       },
     );
   }

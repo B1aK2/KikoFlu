@@ -79,6 +79,9 @@ class SEn extends S {
   String get sortRelease => 'Release Date';
 
   @override
+  String get sortCreateAt => 'Added Date';
+
+  @override
   String get sortCreateDate => 'Catalog Date';
 
   @override
@@ -179,6 +182,9 @@ class SEn extends S {
 
   @override
   String get serverAddress => 'Server Address';
+
+  @override
+  String get serverCookie => 'Server Cookie';
 
   @override
   String get login => 'Login';

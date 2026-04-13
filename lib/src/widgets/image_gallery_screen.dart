@@ -8,6 +8,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 import '../utils/snackbar_util.dart';
+import '../services/storage_service.dart';
 import '../../l10n/app_localizations.dart';
 import 'cached_image_widget.dart';
 
@@ -117,7 +118,10 @@ class _ImageGalleryScreenState extends State<ImageGalleryScreen> {
         // 网络图片，使用 Dio 下载
         final response = await Dio().get(
           imageUrl,
-          options: Options(responseType: ResponseType.bytes),
+          options: Options(
+            responseType: ResponseType.bytes,
+            headers: StorageService.serverCookieHeaders,
+          ),
         );
         imageBytes = response.data as List<int>;
       }
@@ -129,7 +133,8 @@ class _ImageGalleryScreenState extends State<ImageGalleryScreen> {
       }
     } catch (e) {
       if (mounted) {
-        SnackBarUtil.showError(context, S.of(context).saveFailedWithError(e.toString()));
+        SnackBarUtil.showError(
+            context, S.of(context).saveFailedWithError(e.toString()));
       }
     } finally {
       if (mounted) {
@@ -170,7 +175,8 @@ class _ImageGalleryScreenState extends State<ImageGalleryScreen> {
             await openAppSettings();
           }
         } else {
-          SnackBarUtil.showWarning(context, S.of(context).storagePermissionRequiredForImage);
+          SnackBarUtil.showWarning(
+              context, S.of(context).storagePermissionRequiredForImage);
         }
       }
       return;
@@ -188,7 +194,9 @@ class _ImageGalleryScreenState extends State<ImageGalleryScreen> {
         SnackBarUtil.showSuccess(context, S.of(context).imageSavedToGallery);
       } else {
         SnackBarUtil.showError(
-            context, S.of(context).saveFailedWithError(result.errorMessage ?? S.of(context).saveImageFailed));
+            context,
+            S.of(context).saveFailedWithError(
+                result.errorMessage ?? S.of(context).saveImageFailed));
       }
     }
   }
@@ -224,7 +232,8 @@ class _ImageGalleryScreenState extends State<ImageGalleryScreen> {
         }
       } catch (e) {
         if (mounted) {
-          SnackBarUtil.showError(context, S.of(context).saveFailedWithError(e.toString()));
+          SnackBarUtil.showError(
+              context, S.of(context).saveFailedWithError(e.toString()));
         }
       }
     } else {
@@ -239,7 +248,8 @@ class _ImageGalleryScreenState extends State<ImageGalleryScreen> {
         await file.writeAsBytes(imageBytes);
 
         if (mounted) {
-          SnackBarUtil.showSuccess(context, S.of(context).imageSavedToPath(outputFile));
+          SnackBarUtil.showSuccess(
+              context, S.of(context).imageSavedToPath(outputFile));
         }
       }
     }
@@ -265,7 +275,9 @@ class _ImageGalleryScreenState extends State<ImageGalleryScreen> {
           backgroundColor: Colors.black.withOpacity(0.4),
           elevation: 0,
           foregroundColor: Colors.white,
-          title: isSingleImage ? (title.isNotEmpty ? Text(title) : null) : Text(pageLabel),
+          title: isSingleImage
+              ? (title.isNotEmpty ? Text(title) : null)
+              : Text(pageLabel),
           actions: [
             if (_isSaving)
               const Padding(
@@ -318,7 +330,9 @@ class _ImageGalleryScreenState extends State<ImageGalleryScreen> {
         foregroundColor: Colors.white,
         titleSpacing: 16,
         title: isSingleImage
-            ? (title.isNotEmpty ? Text(title, style: const TextStyle(fontSize: 16)) : null)
+            ? (title.isNotEmpty
+                ? Text(title, style: const TextStyle(fontSize: 16))
+                : null)
             : Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,

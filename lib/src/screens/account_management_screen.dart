@@ -68,7 +68,7 @@ class _AccountManagementScreenState
             account.username,
             account.password,
             account.host,
-          );
+            account.serverCookie);
 
       if (success && mounted) {
         ScaffoldMessenger.of(context).showSnackBar(

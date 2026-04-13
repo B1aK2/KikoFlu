@@ -30,6 +30,7 @@
   "salesRangeAll": "全部",
 
   "sortRelease": "發布日期",
+  "sortCreateAt": "添加日期",
   "sortCreateDate": "收錄日期",
   "sortRating": "評分",
   "sortReviewCount": "評論數",
@@ -70,6 +71,7 @@
   "username": "使用者名稱",
   "password": "密碼",
   "serverAddress": "伺服器位址",
+  "serverCookie": "伺服器Cookie",
   "login": "登入",
   "loginSuccess": "登入成功",
   "loginFailed": "登入失敗",

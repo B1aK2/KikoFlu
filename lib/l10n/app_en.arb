@@ -30,6 +30,7 @@
   "salesRangeAll": "All",
 
   "sortRelease": "Release Date",
+  "sortCreateAt": "Added Date",
   "sortCreateDate": "Catalog Date",
   "sortRating": "Rating",
   "sortReviewCount": "Reviews",
@@ -70,6 +71,7 @@
   "username": "Username",
   "password": "Password",
   "serverAddress": "Server Address",
+  "serverCookie": "Server Cookie",
   "login": "Login",
   "loginSuccess": "Login successful",
   "loginFailed": "Login failed",

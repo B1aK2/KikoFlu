@@ -11,6 +11,7 @@ import '../services/subtitle_library_service.dart';
 import '../services/subtitle_database.dart';
 import '../utils/encoding_utils.dart';
 import '../services/translation_service.dart';
+import '../services/storage_service.dart';
 import 'auth_provider.dart';
 import 'audio_provider.dart';
 import 'settings_provider.dart';
@@ -72,8 +73,9 @@ class LyricState {
 
   /// 用于显示的歌词列表（翻译后 > 原文，均应用时间轴偏移）
   List<LyricLine> get displayLyrics {
-    final source =
-        (showTranslated && translatedLyrics != null) ? translatedLyrics! : lyrics;
+    final source = (showTranslated && translatedLyrics != null)
+        ? translatedLyrics!
+        : lyrics;
     if (timelineOffset == Duration.zero) return source;
     return source.map((lyric) => lyric.applyOffset(timelineOffset)).toList();
   }
@@ -218,6 +220,7 @@ class LyricController extends StateNotifier<LyricState> {
           options: Options(
             responseType: ResponseType.bytes,
             receiveTimeout: const Duration(seconds: 30),
+            headers: StorageService.serverCookieHeaders,
           ),
         );
 
@@ -287,8 +290,8 @@ class LyricController extends StateNotifier<LyricState> {
           double bestScore = 0.0;
 
           for (final record in records) {
-            final (isMatch, score) = SubtitleLibraryService.checkMatch(
-                record.fileName, trackTitle);
+            final (isMatch, score) =
+                SubtitleLibraryService.checkMatch(record.fileName, trackTitle);
             if (isMatch && score > bestScore) {
               final absolutePath = record.absolutePath(libraryRoot);
               // 验证文件是否仍存在（DB 可能过期）
@@ -296,7 +299,8 @@ class LyricController extends StateNotifier<LyricState> {
               bestScore = score;
               bestMatchPath = absolutePath;
               if (score == 1.0) {
-                print('[Lyric] 在数据库中找到完美匹配 (workId=$workId): ${record.fileName}');
+                print(
+                    '[Lyric] 在数据库中找到完美匹配 (workId=$workId): ${record.fileName}');
                 return absolutePath;
               }
             }
@@ -317,8 +321,8 @@ class LyricController extends StateNotifier<LyricState> {
         double bestScore = 0.0;
 
         for (final record in savedRecords) {
-          final (isMatch, score) = SubtitleLibraryService.checkMatch(
-              record.fileName, trackTitle);
+          final (isMatch, score) =
+              SubtitleLibraryService.checkMatch(record.fileName, trackTitle);
           if (isMatch && score > bestScore) {
             final absolutePath = record.absolutePath(libraryRoot);
             if (!await File(absolutePath).exists()) continue;
@@ -528,8 +532,7 @@ class LyricController extends StateNotifier<LyricState> {
       }
 
       // 并发翻译各块
-      final prefs =
-          await SharedPreferences.getInstance();
+      final prefs = await SharedPreferences.getInstance();
       final source = prefs.getString('translation_source') ?? 'google';
       int concurrency = 1;
       if (source == 'llm') {
@@ -545,8 +548,7 @@ class LyricController extends StateNotifier<LyricState> {
           if (idx >= chunks.length) return;
           currentIdx++;
           try {
-            chunkResults[idx] =
-                await translationService.translate(chunks[idx]);
+            chunkResults[idx] = await translationService.translate(chunks[idx]);
           } catch (e) {
             chunkResults[idx] = chunks[idx]; // 失败保留原文
           }
@@ -761,6 +763,7 @@ class LyricController extends StateNotifier<LyricState> {
           options: Options(
             responseType: ResponseType.bytes,
             receiveTimeout: const Duration(seconds: 30),
+            headers: StorageService.serverCookieHeaders,
           ),
         );
 
