@@ -599,9 +599,7 @@ class _EnhancedWorkCardState extends ConsumerState<EnhancedWorkCard> {
         targetWidth = (80 * devicePixelRatio).round(); // 列表模式封面固定宽度
     }
 
-    Map<String, String> httpHeaders = {
-      "Cookie": StorageService.getString('server_cookie') ?? ""
-    };
+    final httpHeaders = StorageService.serverCookieHeaders;
 
     return Hero(
       tag: 'work_cover_${widget.work.id}',

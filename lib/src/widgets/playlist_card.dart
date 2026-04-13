@@ -26,9 +26,7 @@ class PlaylistCard extends ConsumerWidget {
     final token = authState.token ?? '';
     final theme = Theme.of(context);
 
-    Map<String, String> httpHeaders = {
-      "Cookie": StorageService.getString('server_cookie') ?? ""
-    };
+    final httpHeaders = StorageService.serverCookieHeaders;
 
     return Card(
       elevation: 1,

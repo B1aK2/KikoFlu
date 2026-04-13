@@ -108,12 +108,11 @@ class _CoverPreviewDialogState extends State<CoverPreviewDialog> {
             'cover_${widget.identifier ?? DateTime.now().millisecondsSinceEpoch}.jpg';
       } else if (widget.imageUrl != null) {
         // 网络图片
-        final serverCookie = StorageService.getString('server_cookie');
         final response = await Dio().get<List<int>>(
           widget.imageUrl!,
           options: Options(
             responseType: ResponseType.bytes,
-            headers: {'Cookie': serverCookie ?? ''},
+            headers: StorageService.serverCookieHeaders,
           ),
         );
         imageBytes = Uint8List.fromList(response.data!);

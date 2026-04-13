@@ -116,13 +116,11 @@ class _ImageGalleryScreenState extends State<ImageGalleryScreen> {
         imageBytes = await localFile.readAsBytes();
       } else {
         // 网络图片，使用 Dio 下载
-        final serverCookie = StorageService.getString('server_cookie');
-
         final response = await Dio().get(
           imageUrl,
           options: Options(
             responseType: ResponseType.bytes,
-            headers: {'Cookie': serverCookie ?? ''},
+            headers: StorageService.serverCookieHeaders,
           ),
         );
         imageBytes = response.data as List<int>;

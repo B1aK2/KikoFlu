@@ -211,9 +211,10 @@ class AuthNotifier extends StateNotifier<AuthState> {
       state = state.copyWith(isLoading: true, error: null);
     }
 
-    if (serverCookie != null) {
-      // 如果登录请求的时候配置了serverCookie参数则将其保存到 StorageService 中，以便后续在网络请求过程中调用
+    if (serverCookie != null && serverCookie.isNotEmpty) {
       await StorageService.setString('server_cookie', serverCookie);
+    } else {
+      await StorageService.remove('server_cookie');
     }
 
     try {
@@ -362,9 +363,10 @@ class AuthNotifier extends StateNotifier<AuthState> {
       [String? serverCookie]) async {
     state = state.copyWith(isLoading: true, error: null);
 
-    // 如果注册请求的时候配置了serverCookie参数则将其保存到 StorageService 中，以便后续在网络请求过程中调用
-    if (serverCookie != null) {
+    if (serverCookie != null && serverCookie.isNotEmpty) {
       await StorageService.setString('server_cookie', serverCookie);
+    } else {
+      await StorageService.remove('server_cookie');
     }
 
     try {
@@ -524,10 +526,12 @@ class AuthNotifier extends StateNotifier<AuthState> {
         }
       }
 
-      // 如果当前用户配置了serverCookie，则在更新host时也更新API服务的serverCookie配置，以确保在host变更后仍然能够正确使用serverCookie进行认证
-      if (state.currentUser?.serverCookie != null) {
-        await StorageService.setString(
-            'server_cookie', state.currentUser!.serverCookie!);
+      // 更新host时同步serverCookie配置
+      final cookie = state.currentUser?.serverCookie;
+      if (cookie != null && cookie.isNotEmpty) {
+        await StorageService.setString('server_cookie', cookie);
+      } else {
+        await StorageService.remove('server_cookie');
       }
 
       _apiService.init(state.token!, normalizedHost);
@@ -541,6 +545,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
       await StorageService.remove('auth_token');
       await StorageService.remove('server_host');
       await StorageService.remove('current_user');
+      await StorageService.remove('server_cookie');
     } catch (e) {
       print('Failed to clear storage: $e');
     }
@@ -556,9 +561,10 @@ class AuthNotifier extends StateNotifier<AuthState> {
     if (token != null && host != null) {
       print('[Auth] Switching user - username: ${user.name}, host: $host');
 
-      if (serverCookie != null) {
-        // 如果切换用户时配置了serverCookie参数则将其保存到 StorageService 中，以便后续在网络请求过程中调用
+      if (serverCookie != null && serverCookie.isNotEmpty) {
         await StorageService.setString('server_cookie', serverCookie);
+      } else {
+        await StorageService.remove('server_cookie');
       }
 
       _apiService.init(token, host);

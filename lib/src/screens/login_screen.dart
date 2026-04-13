@@ -4,7 +4,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../providers/auth_provider.dart';
 import '../services/kikoeru_api_service.dart';
-import '../services/storage_service.dart';
 import '../utils/server_utils.dart';
 import '../utils/snackbar_util.dart';
 import '../../l10n/app_localizations.dart';
@@ -322,8 +321,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     );
   }
 
-  Future<void> _testLatencyForHost(String host,
-      [String? serverCookie = ""]) async {
+  Future<void> _testLatencyForHost(String host, [String? serverCookie]) async {
     final normalized = _normalizedHostString(host);
     if (normalized.isEmpty) {
       return;
@@ -363,7 +361,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         '$baseUrl/api/health',
         options: Options(
           validateStatus: (status) => status != null && status < 500,
-          headers: {'Cookie': serverCookie},
+          headers: (serverCookie != null && serverCookie.isNotEmpty)
+              ? {'Cookie': serverCookie}
+              : null,
         ),
       );
 

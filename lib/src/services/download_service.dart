@@ -91,7 +91,6 @@ class DownloadService {
     try {
       final workDir = await _getWorkDownloadDirectory(workId);
       final coverFile = File('$workDir/cover.jpg');
-      final serverCookie = StorageService.getString('server_cookie');
 
       // 如果已存在则不重复下载
       if (await coverFile.exists()) {
@@ -99,7 +98,7 @@ class DownloadService {
       }
 
       // 下载图片
-      _dio.options.headers['Cookie'] = serverCookie ?? "";
+      _dio.options.headers.addAll(StorageService.serverCookieHeaders);
       await _dio.download(coverUrl, coverFile.path);
       return coverFile.path;
     } catch (e) {
@@ -396,8 +395,7 @@ class DownloadService {
       const updateInterval = 500; // 500ms 更新一次
       int? firstReportedTotal; // 记录首次收到的total，用于诊断进度跳变
 
-      final serverCookie = StorageService.getString('server_cookie');
-      _dio.options.headers['Cookie'] = serverCookie ?? "";
+      _dio.options.headers.addAll(StorageService.serverCookieHeaders);
 
       _log.info('开始网络下载: ${task.fileName}, url=${task.downloadUrl}',
           tag: 'Download');

@@ -186,7 +186,6 @@ class LyricController extends StateNotifier<LyricState> {
       final hash = lyricFile['hash'];
       final fileName = lyricFile['title'] ?? lyricFile['name'];
       final workId = track.workId;
-      final serverCookie = StorageService.getString('server_cookie');
 
       if (hash == null || host.isEmpty || workId == null) {
         state = LyricState(lyrics: [], isLoading: false);
@@ -221,7 +220,7 @@ class LyricController extends StateNotifier<LyricState> {
           options: Options(
             responseType: ResponseType.bytes,
             receiveTimeout: const Duration(seconds: 30),
-            headers: {'Cookie': serverCookie ?? ''},
+            headers: StorageService.serverCookieHeaders,
           ),
         );
 
@@ -709,7 +708,6 @@ class LyricController extends StateNotifier<LyricState> {
       final host = authState.host ?? '';
       final token = authState.token ?? '';
       final hash = lyricFile['hash'];
-      final serverCookie = StorageService.getString('server_cookie');
 
       if (hash == null || host.isEmpty) {
         state = LyricState(
@@ -765,7 +763,7 @@ class LyricController extends StateNotifier<LyricState> {
           options: Options(
             responseType: ResponseType.bytes,
             receiveTimeout: const Duration(seconds: 30),
-            headers: {'Cookie': serverCookie ?? ''},
+            headers: StorageService.serverCookieHeaders,
           ),
         );
 

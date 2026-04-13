@@ -1042,10 +1042,7 @@ class _PlaylistDetailScreenState extends ConsumerState<PlaylistDetailScreen> {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
-    // 从StroageService获取cookie，确保网络请求包含认证信息
-    Map<String, String> httpHeaders = {
-      "Cookie": StorageService.getString('server_cookie') ?? ""
-    };
+    final httpHeaders = StorageService.serverCookieHeaders;
 
     return InkWell(
       onTap: () {

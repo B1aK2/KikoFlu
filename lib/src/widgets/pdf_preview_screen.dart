@@ -116,8 +116,7 @@ class _PdfPreviewScreenState extends State<PdfPreviewScreen> {
         }
 
         final dio = Dio();
-        final serverCookie = StorageService.getString('server_cookie');
-        dio.options.headers['Cookie'] = serverCookie ?? "";
+        dio.options.headers.addAll(StorageService.serverCookieHeaders);
 
         final newCachedPath = await CacheService.cacheFileResource(
           workId: widget.workId!,
@@ -148,7 +147,6 @@ class _PdfPreviewScreenState extends State<PdfPreviewScreen> {
       }
 
       final dio = Dio();
-      final serverCookie = StorageService.getString('server_cookie');
       final tempDir = await getTemporaryDirectory();
       final fileName = 'temp_pdf_${DateTime.now().millisecondsSinceEpoch}.pdf';
       final filePath = '${tempDir.path}/$fileName';
@@ -158,7 +156,7 @@ class _PdfPreviewScreenState extends State<PdfPreviewScreen> {
         filePath,
         options: Options(
           receiveTimeout: const Duration(seconds: 60),
-          headers: {'Cookie': serverCookie ?? ''},
+          headers: StorageService.serverCookieHeaders,
         ),
         onReceiveProgress: (received, total) {
           if (total != -1) {

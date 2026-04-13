@@ -1194,10 +1194,7 @@ class _LocalDownloadsScreenState extends ConsumerState<LocalDownloadsScreen>
       }
     }
 
-    // 从StroageService获取cookie，确保网络请求包含认证信息
-    Map<String, String> httpHeaders = {
-      "Cookie": StorageService.getString('server_cookie') ?? ""
-    };
+    final httpHeaders = StorageService.serverCookieHeaders;
 
     // 降级使用网络封面
     if (work != null && host.isNotEmpty) {

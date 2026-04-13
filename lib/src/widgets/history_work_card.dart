@@ -33,9 +33,7 @@ class HistoryWorkCard extends ConsumerWidget {
     final token = authState.token ?? '';
     final work = record.work;
 
-    Map<String, String> httpHeaders = {
-      "Cookie": StorageService.getString('server_cookie') ?? ""
-    };
+    final httpHeaders = StorageService.serverCookieHeaders;
 
     return Card(
       clipBehavior: Clip.antiAlias,

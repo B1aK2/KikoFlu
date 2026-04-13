@@ -342,13 +342,12 @@ class _TextPreviewScreenState extends State<TextPreviewScreen> {
       }
 
       final dio = Dio();
-      final serverCookie = StorageService.getString('server_cookie');
       final response = await dio.get(
         widget.textUrl,
         options: Options(
           responseType: ResponseType.bytes, // 改为获取字节数据
           receiveTimeout: const Duration(seconds: 30),
-          headers: {'Cookie': serverCookie ?? ''},
+          headers: StorageService.serverCookieHeaders,
         ),
       );
 
